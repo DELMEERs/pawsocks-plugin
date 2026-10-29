@@ -24,6 +24,16 @@ public final class Items {
         return item;
     }
 
+    /** Название предмета: своё, если переименован, иначе переводимое (у каждого игрока на его языке). */
+    public static Component name(ItemStack item) {
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null && meta.hasDisplayName()) {
+            Component custom = meta.displayName();
+            if (custom != null) return custom;
+        }
+        return Component.translatable(item.translationKey());
+    }
+
     public static ItemStack glow(ItemStack item) {
         ItemMeta meta = item.getItemMeta();
         meta.setEnchantmentGlintOverride(true);

@@ -1,0 +1,207 @@
+# цены, по которым сервер скупает вещи через /sell, в лапках за 1 штуку.
+# лапка ≈ доллар: железо 1, алмаз 10, незеритовый слиток 245.
+# изумруд дешёвый (0,50), потому что жители отдают его почти даром — иначе
+# торговля с жителями стала бы бесконечным источником лапок.
+#
+# правило, чтобы не было халявы: крафт не должен стоить дороже того, из чего он сделан.
+# блок = 9 слитков ровно, доски дешевле бревна и т.д.
+#
+# сервер покупает только обычные предметы — без имени, чар, описания и поломок.
+# инструменты, броня, зелья, книги и всё, чего здесь нет, через /sell не продаются
+# (их продают другим игрокам на /ah).
+#
+# цены «плавают»: если какой-то вещи продали много, сервер берёт её дешевле
+# (настройка economy.market в config.yml). цена при наведении показывает текущую.
+#
+# после правки: /pawsocks reload
+
+prices:
+  # --- камень и земля ---
+  cobblestone: 0.01
+  cobbled_deepslate: 0.01
+  stone: 0.02
+  deepslate: 0.02
+  andesite: 0.01
+  diorite: 0.01
+  granite: 0.01
+  tuff: 0.01
+  calcite: 0.03
+  dripstone_block: 0.03
+  pointed_dripstone: 0.02
+  dirt: 0.01
+  coarse_dirt: 0.01
+  gravel: 0.02
+  flint: 0.03
+  sand: 0.02
+  red_sand: 0.03
+  clay_ball: 0.03
+  clay: 0.12
+  netherrack: 0.01
+  basalt: 0.02
+  blackstone: 0.02
+  soul_sand: 0.03
+  soul_soil: 0.03
+  end_stone: 0.05
+  obsidian: 0.50
+  crying_obsidian: 1.00
+  ice: 0.05
+  packed_ice: 0.45
+  blue_ice: 4.05
+  snowball: 0.01
+  amethyst_shard: 0.10
+  sponge: 5.00
+  wet_sponge: 5.00
+
+  # --- дерево (доски: 4 из бревна, поэтому дешевле) ---
+  oak_log: 0.10
+  spruce_log: 0.10
+  birch_log: 0.10
+  jungle_log: 0.10
+  acacia_log: 0.10
+  dark_oak_log: 0.10
+  mangrove_log: 0.10
+  cherry_log: 0.10
+  pale_oak_log: 0.10
+  crimson_stem: 0.10
+  warped_stem: 0.10
+  bamboo_block: 0.08
+  oak_planks: 0.02
+  spruce_planks: 0.02
+  birch_planks: 0.02
+  jungle_planks: 0.02
+  acacia_planks: 0.02
+  dark_oak_planks: 0.02
+  mangrove_planks: 0.02
+  cherry_planks: 0.02
+  pale_oak_planks: 0.02
+  crimson_planks: 0.02
+  warped_planks: 0.02
+  charcoal: 0.08
+
+  # --- руда и слитки (блок = 9 слитков) ---
+  coal: 0.25
+  coal_block: 2.25
+  coal_ore: 0.25
+  deepslate_coal_ore: 0.25
+  raw_copper: 0.25
+  copper_ingot: 0.30
+  copper_block: 2.70
+  raw_copper_block: 2.25
+  copper_ore: 0.25
+  deepslate_copper_ore: 0.25
+  raw_iron: 0.90
+  iron_ingot: 1.00
+  iron_nugget: 0.11
+  iron_block: 9.00
+  raw_iron_block: 8.10
+  iron_ore: 0.90
+  deepslate_iron_ore: 0.90
+  raw_gold: 1.80
+  gold_ingot: 2.00
+  gold_nugget: 0.22
+  gold_block: 18.00
+  raw_gold_block: 16.20
+  gold_ore: 1.80
+  deepslate_gold_ore: 1.80
+  nether_gold_ore: 0.80
+  redstone: 0.10
+  redstone_block: 0.90
+  redstone_ore: 0.40
+  deepslate_redstone_ore: 0.40
+  lapis_lazuli: 0.15
+  lapis_block: 1.35
+  lapis_ore: 0.60
+  deepslate_lapis_ore: 0.60
+  emerald: 0.50
+  emerald_block: 4.50
+  emerald_ore: 0.50
+  deepslate_emerald_ore: 0.50
+  diamond: 10.00
+  diamond_block: 90.00
+  diamond_ore: 10.00
+  deepslate_diamond_ore: 10.00
+  quartz: 0.12
+  quartz_block: 0.48
+  nether_quartz_ore: 0.12
+  glowstone_dust: 0.12
+  glowstone: 0.48
+  ancient_debris: 60.00
+  netherite_scrap: 60.00
+  netherite_ingot: 245.00
+  netherite_block: 2205.00
+
+  # --- урожай (блок сена = 9 пшеницы) ---
+  wheat: 0.05
+  hay_block: 0.45
+  carrot: 0.03
+  potato: 0.03
+  beetroot: 0.04
+  melon_slice: 0.01
+  pumpkin: 0.08
+  sugar_cane: 0.03
+  cactus: 0.03
+  bamboo: 0.01
+  cocoa_beans: 0.04
+  nether_wart: 0.05
+  sweet_berries: 0.02
+  glow_berries: 0.03
+  kelp: 0.01
+  apple: 0.08
+  chorus_fruit: 0.05
+  red_mushroom: 0.05
+  brown_mushroom: 0.05
+  egg: 0.03
+  honey_bottle: 0.30
+  honeycomb: 0.30
+
+  # --- мясо и рыба (жареное чуть дороже сырого) ---
+  beef: 0.08
+  cooked_beef: 0.09
+  porkchop: 0.08
+  cooked_porkchop: 0.09
+  chicken: 0.07
+  cooked_chicken: 0.08
+  mutton: 0.07
+  cooked_mutton: 0.08
+  rabbit: 0.07
+  cooked_rabbit: 0.08
+  cod: 0.05
+  cooked_cod: 0.06
+  salmon: 0.07
+  cooked_salmon: 0.08
+  tropical_fish: 0.10
+  pufferfish: 0.10
+
+  # --- добыча с мобов ---
+  rotten_flesh: 0.02
+  bone: 0.05
+  string: 0.05
+  spider_eye: 0.10
+  gunpowder: 0.20
+  arrow: 0.02
+  ender_pearl: 1.00
+  blaze_rod: 1.00
+  breeze_rod: 1.50
+  ghast_tear: 3.00
+  slime_ball: 0.30
+  magma_cream: 0.40
+  phantom_membrane: 1.00
+  leather: 0.30
+  feather: 0.05
+  rabbit_hide: 0.10
+  rabbit_foot: 1.00
+  ink_sac: 0.05
+  glow_ink_sac: 0.20
+  white_wool: 0.05
+  prismarine_shard: 0.10
+  prismarine_crystals: 0.15
+  armadillo_scute: 0.50
+  turtle_scute: 1.00
+  nautilus_shell: 3.00
+  echo_shard: 3.00
+  shulker_shell: 10.00
+  dragon_breath: 2.00
+  wither_skeleton_skull: 30.00
+  totem_of_undying: 25.00
+  heart_of_the_sea: 30.00
+  nether_star: 150.00

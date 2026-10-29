@@ -36,6 +36,12 @@ jobs:
           mkdir -p server/plugins
           curl -fsSL -o server/paper.jar "$url"
           cp build/libs/*.jar server/plugins/
+          # packetevents — для цены при наведении
+          pe=$(curl -fsSL -G -H 'User-Agent: pawsocks-ci (github.com/DELMEERs/pawsocks-plugin)' \
+            --data-urlencode 'loaders=["paper"]' --data-urlencode 'game_versions=["1.21.11"]' \
+            https://api.modrinth.com/v2/project/packetevents/version | jq -r '.[0].files[] | select(.primary) | .url' | head -1)
+          echo "packetevents: $pe"
+          curl -fsSL -o server/plugins/packetevents.jar "$pe"
           echo "eula=true" > server/eula.txt
           printf 'online-mode=false\nlevel-type=minecraft\\:flat\ngenerate-structures=false\nspawn-protection=0\n' > server/server.properties
 
@@ -48,6 +54,8 @@ jobs:
             for i in $(seq 1 180); do grep -q 'Done (' logs/latest.log 2>/dev/null && break; sleep 1; done
             sleep 3
             echo "pawsocks reload"; sleep 2
+            echo "baltop"; sleep 1
+            echo "eco info"; sleep 1
             echo "plugins"; sleep 2
             echo "stop"
           ) > console &
@@ -58,11 +66,14 @@ jobs:
         run: |
           set -e
           # строки про плагин — в аннотации запуска, чтобы их было видно без скачивания лога
-          grep -iE 'pawsocks|exception' run.log | sed 's/\x1b\[[0-9;]*m//g' | head -25 | while IFS= read -r line; do
+          grep -iE 'pawsocks|packetevents|exception|лапок|цены' run.log | sed 's/\x1b\[[0-9;]*m//g' | head -25 | while IFS= read -r line; do
             echo "::notice title=лог сервера::${line}"
           done
           grep -q 'pawsocks включён' run.log || { echo "::error::плагин не включился"; exit 1; }
           grep -q 'pawsocks: конфиг и тексты перезагружены' run.log || { echo "::error::/pawsocks reload не сработал"; exit 1; }
+          grep -q 'цена при наведении включена' run.log || { echo "::error::не подключился к packetevents"; exit 1; }
+          grep -q 'всего лапок у игроков' run.log || { echo "::error::/eco info не ответил"; exit 1; }
+          if grep -n 'prices.yml:' run.log; then echo "::error::ошибки в prices.yml"; exit 1; fi
           if grep -nE 'Error occurred while enabling pawsocks|\[pawsocks\].*(Exception|ERROR)|club\.zeroiq\.pawsocks.*Exception|Exception.*club\.zeroiq\.pawsocks|at club\.zeroiq\.pawsocks' run.log; then
             echo "::error::в логе ошибки плагина"; exit 1
           fi

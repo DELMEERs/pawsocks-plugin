@@ -3,6 +3,7 @@ package club.zeroiq.pawsocks.gui;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -10,19 +11,25 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /** Простое меню-инвентарь: предметы в слотах и действие на клик. Забрать предметы нельзя. */
 public abstract class Menu implements InventoryHolder {
 
     private final Inventory inventory;
-    private final Map<Integer, Consumer<Player>> actions = new HashMap<>();
+    private final Map<Integer, BiConsumer<Player, ClickType>> actions = new HashMap<>();
 
     protected Menu(int rows, Component title) {
         this.inventory = Bukkit.createInventory(this, rows * 9, title);
     }
 
     protected void set(int slot, ItemStack item, Consumer<Player> onClick) {
+        setClick(slot, item, onClick == null ? null : (p, c) -> onClick.accept(p));
+    }
+
+    /** То же, но действие знает, каким кликом нажали (левый, правый, с шифтом). */
+    protected void setClick(int slot, ItemStack item, BiConsumer<Player, ClickType> onClick) {
         inventory.setItem(slot, item);
         if (onClick != null) {
             actions.put(slot, onClick);
@@ -48,10 +55,10 @@ public abstract class Menu implements InventoryHolder {
         }
     }
 
-    void click(Player player, int slot) {
-        Consumer<Player> action = actions.get(slot);
+    void click(Player player, int slot, ClickType type) {
+        BiConsumer<Player, ClickType> action = actions.get(slot);
         if (action != null) {
-            action.accept(player);
+            action.accept(player, type);
         }
     }
 

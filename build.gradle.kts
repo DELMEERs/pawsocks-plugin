@@ -3,15 +3,25 @@ plugins {
 }
 
 group = "club.zeroiq.pawsocks"
-version = "1.0.1"
+version = "1.1.0"
 
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.codemc.io/repository/maven-releases/")
+    maven("https://repo.codemc.io/repository/maven-snapshots/")
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    // нужен только для цены при наведении; на сервере ставится отдельным плагином
+    compileOnly("com.github.retrooper:packetevents-spigot:2.11.0")
+
+    testImplementation(platform("org.junit:junit-bom:5.11.4"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    // Money использует adventure, а тестам нужен paper-api на classpath
+    testImplementation("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
 }
 
 java {
@@ -23,6 +33,10 @@ tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
     options.release.set(21)
     options.compilerArgs.add("-Xlint:deprecation")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 tasks.processResources {

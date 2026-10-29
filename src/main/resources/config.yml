@@ -46,3 +46,38 @@ trails:
 
 carrier:
   enabled: true
+
+economy:
+  # сколько лапок у нового игрока
+  start-balance: 0
+  # цена при наведении на предмет (нужен плагин packetevents)
+  worth-lore: true
+  # насыщение рынка: чем больше какой-то вещи продали серверу, тем дешевле он её берёт.
+  # saturation — сколько лапок (по базовой цене) нужно продать, чтобы цена упала вдвое.
+  # floor — ниже какой доли базовой цены не опускается. half-life-hours — за сколько часов
+  # рынок «остывает» наполовину.
+  market:
+    saturation: 500
+    floor: 0.25
+    half-life-hours: 12
+  sell:
+    enabled: true
+  auction:
+    enabled: true
+    # налог с продажи на аукционе, в процентах. лапки сгорают — так экономика не раздувается
+    tax-percent: 5
+    duration-hours: 48
+    # лотов на игрока; больше — правом pawsocks.ah.listings.<n>
+    max-listings: 5
+    min-price: 0.01
+    max-price: 1000000
+
+homes:
+  enabled: true
+  # сколько точек дома без особых прав. больше — правом pawsocks.homes.<n>,
+  # без ограничений — pawsocks.homes.unlimited
+  default-limit: 1
+  default-name: "дом"
+  # задержка телепорта: пошевелился или получил урон — отмена
+  warmup-seconds: 3
+  cooldown-seconds: 5

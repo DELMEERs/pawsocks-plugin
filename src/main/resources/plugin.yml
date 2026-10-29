@@ -5,6 +5,8 @@ api-version: '1.21'
 description: уникальные фишки сервера pawsocks
 author: DELMEERs
 website: https://femden.zeroiq.club
+# packetevents нужен только для цены при наведении; без него всё остальное работает
+softdepend: [packetevents]
 
 commands:
   paw:
@@ -20,6 +22,48 @@ commands:
     description: управление плагином
     usage: /pawsocks reload
     permission: pawsocks.admin
+  balance:
+    description: сколько у тебя лапок
+    usage: /bal [ник]
+    aliases: [bal, money, lapki]
+    permission: pawsocks.balance
+  pay:
+    description: перевести лапки игроку
+    usage: /pay <ник> <сумма>
+    permission: pawsocks.pay
+  baltop:
+    description: самые богатые игроки
+    usage: /baltop
+    permission: pawsocks.balance
+  eco:
+    description: управление счетами
+    usage: /eco give|take|set <ник> <сумма> | /eco info
+    permission: pawsocks.eco.admin
+  sell:
+    description: продать вещи серверу
+    usage: /sell [hand|all]
+    permission: pawsocks.sell
+  ah:
+    description: аукцион игроков
+    usage: /ah | /ah sell <цена>
+    aliases: [auction]
+    permission: pawsocks.ah
+  sethome:
+    description: поставить точку дома
+    usage: /sethome [имя]
+    permission: pawsocks.homes
+  home:
+    description: телепорт домой
+    usage: /home [имя]
+    permission: pawsocks.homes
+  delhome:
+    description: удалить точку дома
+    usage: /delhome [имя]
+    permission: pawsocks.homes
+  homes:
+    description: список домов
+    usage: /homes
+    permission: pawsocks.homes
 
 permissions:
   pawsocks.menu:
@@ -37,3 +81,30 @@ permissions:
   pawsocks.admin:
     description: перезагрузка конфига и текстов
     default: op
+  pawsocks.balance:
+    description: смотреть баланс и топ
+    default: true
+  pawsocks.balance.others:
+    description: смотреть чужой баланс
+    default: true
+  pawsocks.pay:
+    description: переводить лапки
+    default: true
+  pawsocks.eco.admin:
+    description: выдавать, забирать и задавать лапки
+    default: op
+  pawsocks.sell:
+    description: продавать серверу
+    default: true
+  pawsocks.ah:
+    description: пользоваться аукционом
+    default: true
+  pawsocks.homes:
+    description: ставить точки дома и телепортироваться к ним
+    default: true
+  pawsocks.homes.unlimited:
+    description: точек дома без ограничений
+    default: op
+  pawsocks.homes.instant:
+    description: телепорт домой без задержки
+    default: false

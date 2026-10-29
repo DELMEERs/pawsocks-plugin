@@ -7,6 +7,19 @@
 reloaded: "<#FF9CC2>pawsocks: конфиг и тексты перезагружены"
 players-only: "<#8A84A0>эта команда только для игроков"
 no-permission: "<#8A84A0>это тебе пока недоступно"
+error: "<#FF7171>что-то пошло не так, попробуй ещё раз или напиши администрации"
+
+# как пишутся суммы. <amount> — число, <word> — лапка/лапки/лапок по правилам русского
+money:
+  format: "<#F4F1FA><amount> <#FF9CC2>🐾 <word></#FF9CC2>"
+  one: "лапка"
+  few: "лапки"
+  many: "лапок"
+
+time:
+  dh: "<d> д <h> ч"
+  hm: "<h> ч <m> мин"
+  m: "<m> мин"
 
 socks:
   name: "<#FF9CC2><color> носки"
@@ -121,6 +134,7 @@ menu:
       - "<#8A84A0>уют: <#F4F1FA><cozy>%"
       - "<#8A84A0>обнимашек: <#F4F1FA><hugs>"
       - "<#8A84A0>на сервере: <#F4F1FA><hours> ч"
+      - "<#8A84A0>на счету: <balance>"
   trails:
     name: "<#FF9CC2>следы лапок"
     lore:
@@ -163,9 +177,162 @@ menu:
       - ""
       - "<#8A84A0>принимать обнимашки: <state>"
       - "<#E6457F>нажми, чтобы переключить"
+  auction:
+    name: "<#FF9CC2>аукцион"
+    lore:
+      - "<#8A84A0>вещи других игроков"
+      - "<#8A84A0>продать своё: /ah sell цена"
+  sell:
+    name: "<#FF9CC2>продать серверу"
+    lore:
+      - "<#8A84A0>быстро сбыть ресурсы за лапки"
+      - "<#8A84A0>/sell hand — то, что в руке"
+      - "<#8A84A0>/sell all — всё подходящее"
+  homes:
+    name: "<#FF9CC2>мои дома"
+    lore:
+      - "<#8A84A0>/sethome — поставить точку дома"
+      - "<#8A84A0>/home — вернуться домой"
   trails-title: "<#E6457F>следы лапок"
   trail-name: "<#FF9CC2><name>"
   trail-selected: "<#9BE38A>выбрано"
   trail-click: "<#E6457F>нажми, чтобы выбрать"
   trail-locked: "<#8A84A0>для саппортеров ♥"
   trail-off: "<#8A84A0>без следов"
+
+eco:
+  balance: "<#FF9CC2>у тебя <balance>"
+  balance-other: "<#FF9CC2>у <#F4F1FA><name></#F4F1FA> <balance>"
+  no-account: "<#8A84A0>такой игрок ещё не заходил на сервер"
+  pay-usage: "<#8A84A0>/pay ник сумма — перевести лапки"
+  pay-self: "<#8A84A0>самому себе перевести не получится"
+  bad-amount: "<#8A84A0>сумма — положительное число, можно с копейками: 10 или 2,50"
+  not-enough: "<#8A84A0>не хватает лапок, у тебя <balance>"
+  paid: "<#FF9CC2>ты перевёл(а) <money> <#F4F1FA><name>"
+  received: "<#FF9CC2><#F4F1FA><name></#F4F1FA> перевёл(а) тебе <money>"
+  top-header: "<#E6457F>самые богатые лапки:"
+  top-line: "<#8A84A0><place>. <#F4F1FA><name> <#8A84A0>— <balance>"
+  top-empty: "<#8A84A0>пока ни у кого нет лапок"
+  admin-usage: "<#8A84A0>/eco give|take|set ник сумма, /eco info"
+  admin-done: "<#FF9CC2>готово: у <#F4F1FA><name></#F4F1FA> теперь <balance>"
+  info: "<#FF9CC2>всего лапок у игроков: <supply>"
+
+sell:
+  menu-title: "<#E6457F>продажа серверу"
+  menu-info: "<#FF9CC2>положи вещи и закрой меню"
+  menu-info-lore:
+    - "<#8A84A0>сервер купит всё, на что есть цена,"
+    - "<#8A84A0>остальное вернётся в инвентарь"
+    - ""
+    - "<#8A84A0>сейчас выйдет: <money>"
+  done: "<#FF9CC2>продано <#F4F1FA><count> шт.</#F4F1FA> за <money> <#8A84A0>· на счету <balance>"
+  nothing: "<#8A84A0>сервер такое не покупает. цена есть у ресурсов: руды, еды, дерева, добычи с мобов"
+  not-sellable: "<#8A84A0>этот предмет сервер не покупает — попробуй продать его игрокам на /ah"
+  returned: "<#8A84A0>что сервер не купил, вернулось в инвентарь"
+
+worth:
+  unit: "<#8A84A0>сервер купит за <unit>"
+  stack: "<#8A84A0>сервер купит за <unit> <#5D6690>· все <count> шт. — <stack>"
+  saturated: "<#5D6690>рынок насыщен, цена ниже обычной"
+
+ah:
+  title: "<#E6457F>аукцион"
+  confirm-title: "<#E6457F>купить?"
+  mine-title: "<#E6457F>мои лоты"
+  mailbox-title: "<#E6457F>возврат"
+  usage: "<#8A84A0>/ah sell цена — выставить на аукцион то, что в руке (вся стопка)"
+  bad-price: "<#8A84A0>цена — от <min> до <max>"
+  empty-hand: "<#8A84A0>возьми в руку то, что хочешь продать"
+  limit: "<#8A84A0>у тебя уже <limit> лотов — сними какой-нибудь в /ah → мои лоты"
+  listed: "<#FF9CC2>выставлено: <#F4F1FA><item> ×<count></#F4F1FA> за <price> на <hours> ч <#8A84A0>· после продажи получишь <payout> (налог <tax>%)"
+  no-room: "<#8A84A0>освободи место в инвентаре"
+  gone: "<#8A84A0>этот лот уже купили или сняли"
+  own: "<#8A84A0>это твой лот — снять его можно в «мои лоты»"
+  no-money: "<#8A84A0>не хватает лапок: нужно <price>, у тебя <balance>"
+  bought: "<#FF9CC2>куплено: <#F4F1FA><item> ×<count></#F4F1FA> за <price> у <#F4F1FA><seller>"
+  sold: "<#FF9CC2>твой лот купили: <#F4F1FA><item> ×<count></#F4F1FA>, покупатель <#F4F1FA><buyer></#F4F1FA> · тебе <payout>"
+  sold-offline: "<#FF9CC2>пока тебя не было, на аукционе купили <#F4F1FA><count></#F4F1FA> твоих лотов · тебе <payout>"
+  mail-waiting: "<#FF9CC2>в /ah → возврат тебя ждут вещи: <#F4F1FA><count>"
+  cancelled: "<#FF9CC2>лот снят, вещь ждёт тебя в «возврате»"
+  lot-lore:
+    - ""
+    - "<#8A84A0>цена: <price>"
+    - "<#8A84A0>продавец: <#F4F1FA><seller>"
+    - "<#8A84A0>осталось: <#F4F1FA><left>"
+  lot-buy: "<#E6457F>нажми, чтобы купить"
+  lot-own: "<#8A84A0>это твой лот"
+  lot-cancel: "<#E6457F>нажми, чтобы снять с продажи"
+  lot-confirm: ""
+  confirm-yes:
+    name: "<#9BE38A>купить за <price>"
+    lore: []
+  confirm-no:
+    name: "<#FF7171>не надо"
+    lore: []
+  prev:
+    name: "<#FF9CC2>назад"
+    lore: []
+  next:
+    name: "<#FF9CC2>дальше"
+    lore: []
+  back:
+    name: "<#FF9CC2>к аукциону"
+    lore: []
+  mine:
+    name: "<#FF9CC2>мои лоты"
+    lore:
+      - "<#8A84A0>выставлено: <#F4F1FA><count> из <limit>"
+  mailbox:
+    name: "<#FF9CC2>возврат"
+    lore:
+      - "<#8A84A0>непроданные и снятые вещи: <#F4F1FA><count>"
+  balance:
+    name: "<#FF9CC2>твой счёт"
+    lore:
+      - "<balance>"
+  refresh:
+    name: "<#FF9CC2>обновить"
+    lore:
+      - "<#8A84A0>страница <page> из <pages>, лотов: <count>"
+  help:
+    name: "<#FF9CC2>как продать"
+    lore:
+      - "<#8A84A0>возьми вещь в руку и напиши"
+      - "<#F4F1FA>/ah sell цена"
+      - "<#8A84A0>лот висит 2 дня, потом вернётся"
+      - "<#8A84A0>налог с продажи — <tax>%"
+  mail-reason:
+    expired: "<#8A84A0>не продалось за время лота"
+    cancelled: "<#8A84A0>снято с продажи"
+  mail-take: "<#E6457F>нажми, чтобы забрать"
+
+homes:
+  title: "<#E6457F>мои дома"
+  set: "<#FF9CC2>точка дома «<#F4F1FA><name></#F4F1FA>» поставлена ♥ <#8A84A0>/home — вернуться"
+  moved: "<#FF9CC2>точка дома «<#F4F1FA><name></#F4F1FA>» перенесена сюда"
+  limit: "<#8A84A0>больше точек дома поставить нельзя (у тебя <limit>). перенеси старую: /sethome её-имя"
+  bad-name: "<#8A84A0>имя дома — буквы, цифры, _ и -, до <max> символов"
+  none: "<#8A84A0>у тебя нет точки дома — поставь её: /sethome"
+  not-found: "<#8A84A0>нет дома «<name>» — список в /homes"
+  delhome-usage: "<#8A84A0>/delhome имя — какой дом удалить"
+  deleted: "<#FF9CC2>дом «<#F4F1FA><name></#F4F1FA>» удалён"
+  no-world: "<#8A84A0>мира, где стоит дом «<name>», больше нет"
+  cooldown: "<#8A84A0>подожди ещё <seconds> с."
+  warmup: "<#FF9CC2>телепорт домой «<#F4F1FA><name></#F4F1FA>» через <seconds> с. <#8A84A0>не двигайся"
+  cancelled: "<#8A84A0>телепорт отменён"
+  arrived: "<#FF9CC2>ты дома ♥"
+  icon-name: "<#FF9CC2><name>"
+  icon-lore:
+    - "<#8A84A0><world>: <#F4F1FA><x> <y> <z>"
+    - ""
+    - "<#E6457F>нажми — телепорт"
+    - "<#8A84A0>шифт + пкм — удалить"
+  info-name: "<#FF9CC2>точки дома"
+  info-lore:
+    - "<#8A84A0>поставлено: <#F4F1FA><count> из <limit>"
+    - "<#8A84A0>/sethome имя — поставить ещё"
+  unlimited: "<#F4F1FA>∞"
+  world:
+    overworld: "верхний мир"
+    nether: "незер"
+    end: "энд"

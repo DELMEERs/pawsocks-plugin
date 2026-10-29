@@ -1,6 +1,7 @@
 package club.zeroiq.pawsocks.gui;
 
 import club.zeroiq.pawsocks.PawsocksPlugin;
+import club.zeroiq.pawsocks.economy.Money;
 import club.zeroiq.pawsocks.feature.Trail;
 import club.zeroiq.pawsocks.util.Fx;
 import club.zeroiq.pawsocks.util.Items;
@@ -22,7 +23,7 @@ public final class PawMenu extends Menu {
     private final PawsocksPlugin plugin;
 
     public PawMenu(PawsocksPlugin plugin) {
-        super(3, plugin.messages().get("menu.title"));
+        super(4, plugin.messages().get("menu.title"));
         this.plugin = plugin;
     }
 
@@ -37,7 +38,8 @@ public final class PawMenu extends Menu {
                 m.lore("menu.profile.lore",
                         Placeholder.unparsed("cozy", String.valueOf(PlayerData.cozy(p))),
                         Placeholder.unparsed("hugs", String.valueOf(PlayerData.hugs(p))),
-                        Placeholder.unparsed("hours", String.valueOf(p.getStatistic(Statistic.PLAY_ONE_MINUTE) / 20 / 3600))));
+                        Placeholder.unparsed("hours", String.valueOf(p.getStatistic(Statistic.PLAY_ONE_MINUTE) / 20 / 3600)),
+                        Money.tag(m, "balance", plugin.economy().balance(p.getUniqueId()))));
         SkullMeta skull = (SkullMeta) head.getItemMeta();
         skull.setPlayerProfile(p.getPlayerProfile());
         head.setItemMeta(skull);
@@ -82,8 +84,28 @@ public final class PawMenu extends Menu {
                     open(viewer);
                 });
 
+        // аукцион, продажа, дома
+        set(19, Items.icon(Material.GOLD_INGOT, m.item("menu.auction.name"), m.lore("menu.auction.lore")),
+                viewer -> {
+                    click(viewer);
+                    viewer.closeInventory();
+                    viewer.performCommand("ah");
+                });
+        set(21, Items.icon(Material.HOPPER, m.item("menu.sell.name"), m.lore("menu.sell.lore")),
+                viewer -> {
+                    click(viewer);
+                    viewer.closeInventory();
+                    viewer.performCommand("sell");
+                });
+        set(23, Items.icon(Material.RED_BED, m.item("menu.homes.name"), m.lore("menu.homes.lore")),
+                viewer -> {
+                    click(viewer);
+                    viewer.closeInventory();
+                    viewer.performCommand("homes");
+                });
+
         // обнимашки
-        set(22, Items.icon(Material.PINK_WOOL, m.item("menu.hugs.name"),
+        set(25, Items.icon(Material.PINK_WOOL, m.item("menu.hugs.name"),
                         m.lore("menu.hugs.lore", Placeholder.component("state", state(PlayerData.hugsAllowed(p))))),
                 viewer -> {
                     PlayerData.hugsAllowed(viewer, !PlayerData.hugsAllowed(viewer));
