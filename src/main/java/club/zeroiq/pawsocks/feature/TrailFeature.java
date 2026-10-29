@@ -38,7 +38,8 @@ public final class TrailFeature implements Listener {
 
     public boolean canUse(Player player, Trail trail) {
         if (!player.hasPermission("pawsocks.trails")) return false;
-        return !trail.premium || player.hasPermission("pawsocks.trails.premium");
+        if (!trail.premium || player.hasPermission("pawsocks.trails.premium")) return true;
+        return trail.buyable && plugin.cosmetics().owns(player, "trail:" + trail.id);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

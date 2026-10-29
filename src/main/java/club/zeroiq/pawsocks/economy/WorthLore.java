@@ -80,10 +80,10 @@ public final class WorthLore implements PacketListener, Listener {
         if (!plugin.prices().sellable(item)) return packetItem;
 
         Messages m = plugin.messages();
-        long unit = plugin.prices().quote(item.getType(), 1);
+        long unit = plugin.prices().quote(item.getType(), plugin.prices().unit(item), 1);
         List<Component> extra = new ArrayList<>();
         if (item.getAmount() > 1) {
-            long stack = plugin.prices().quote(item.getType(), item.getAmount());
+            long stack = plugin.prices().quote(item);
             extra.add(m.item("worth.stack", Money.tag(m, "unit", unit), Money.tag(m, "stack", stack),
                     Placeholder.unparsed("count", String.valueOf(item.getAmount()))));
         } else {

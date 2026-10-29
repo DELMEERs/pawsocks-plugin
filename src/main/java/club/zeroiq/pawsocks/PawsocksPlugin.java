@@ -1,6 +1,17 @@
 package club.zeroiq.pawsocks;
 
+import club.zeroiq.pawsocks.astra.AstraEffects;
+import club.zeroiq.pawsocks.astra.AstraFeature;
+import club.zeroiq.pawsocks.astra.AstraItems;
+import club.zeroiq.pawsocks.astra.Astras;
+import club.zeroiq.pawsocks.cosmetics.CosmeticsFeature;
 import club.zeroiq.pawsocks.data.Database;
+import club.zeroiq.pawsocks.data.Perks;
+import club.zeroiq.pawsocks.economy.Guard;
+import club.zeroiq.pawsocks.orders.Orders;
+import club.zeroiq.pawsocks.orders.OrdersFeature;
+import club.zeroiq.pawsocks.shop.ShopFeature;
+import club.zeroiq.pawsocks.smith.SmithFeature;
 import club.zeroiq.pawsocks.economy.Auction;
 import club.zeroiq.pawsocks.economy.AuctionFeature;
 import club.zeroiq.pawsocks.economy.Economy;
@@ -51,6 +62,17 @@ public final class PawsocksPlugin extends JavaPlugin {
     private HomesFeature homes;
     private Runnable worthOff;
 
+    private Guard guard;
+    private Perks perks;
+    private Astras astras;
+    private AstraItems astraItems;
+    private AstraEffects astraEffects;
+    private AstraFeature astraFeature;
+    private Orders orders;
+    private OrdersFeature ordersFeature;
+    private ShopFeature shop;
+    private CosmeticsFeature cosmetics;
+
     @Override
     public void onEnable() {
         saveDefaultConfig();
@@ -71,7 +93,11 @@ public final class PawsocksPlugin extends JavaPlugin {
         }
         long start = Math.max(0, Money.parse(getConfig().getString("economy.start-balance", "0")));
         economy = new Economy(database, start);
-        prices = new Prices(this, database);
+        guard = new Guard(this);
+        perks = new Perks(database);
+        astras = new Astras(database);
+        orders = new Orders(database);
+        prices = new Prices(this, database, guard);
         prices.load();
         auction = new Auction(database);
 
@@ -84,20 +110,37 @@ public final class PawsocksPlugin extends JavaPlugin {
         auctionFeature = new AuctionFeature(this);
         homes = new HomesFeature(this, database);
         EconomyCommands ecoCommands = new EconomyCommands(this);
+        astraItems = new AstraItems(this);
+        astraEffects = new AstraEffects(this);
+        astraFeature = new AstraFeature(this);
+        ordersFeature = new OrdersFeature(this);
+        shop = new ShopFeature(this);
+        shop.load();
+        cosmetics = new CosmeticsFeature(this);
+        SmithFeature smith = new SmithFeature(this);
 
         socks.registerRecipe();
         carrier.registerRecipe();
-        for (Listener l : List.of(new MenuListener(this), ecoCommands, socks, cozy, hugs, trails, carrier, sell, auctionFeature, homes)) {
+        for (Listener l : List.of(new MenuListener(this), ecoCommands, socks, cozy, hugs, trails, carrier, sell,
+                auctionFeature, homes, astraEffects, astraFeature, cosmetics)) {
             Bukkit.getPluginManager().registerEvents(l, this);
         }
         cozy.start();
         auctionFeature.start();
+        astraEffects.start();
+        astraFeature.start();
+        ordersFeature.start();
+        cosmetics.start();
 
         command("hug", hugs, hugs);
         command("sell", sell, sell);
         command("ah", auctionFeature, auctionFeature);
         for (String c : List.of("balance", "pay", "baltop", "eco")) command(c, ecoCommands, ecoCommands);
         for (String c : List.of("sethome", "home", "delhome", "homes")) command(c, homes, homes);
+        command("astra", astraFeature, astraFeature);
+        command("order", ordersFeature, ordersFeature);
+        command("shop", shop, null);
+        command("smith", smith, null);
 
         // цена при наведении — только если на сервере есть packetevents
         if (Bukkit.getPluginManager().isPluginEnabled("packetevents")) {
@@ -117,7 +160,8 @@ public final class PawsocksPlugin extends JavaPlugin {
             p.discoverRecipe(new NamespacedKey(this, "socks"));
             p.discoverRecipe(new NamespacedKey(this, "carrier"));
         }
-        getLogger().info("pawsocks включён: носки, уют, обнимашки, следы лапок, переноска, экономика, аукцион, дома, /paw");
+        getLogger().info("pawsocks включён: носки, уют, обнимашки, следы лапок, переноска, экономика, аукцион, дома, "
+                + "астры, магазины, кузнец, заказы, косметика, /paw");
     }
 
     private void command(String name, CommandExecutor executor, TabCompleter completer) {
@@ -141,6 +185,10 @@ public final class PawsocksPlugin extends JavaPlugin {
             }
         }
         if (auctionFeature != null) auctionFeature.stop();
+        if (ordersFeature != null) ordersFeature.stop();
+        if (astraFeature != null) astraFeature.stop();
+        if (astraEffects != null) astraEffects.stop();
+        if (cosmetics != null) cosmetics.stop();
         if (cozy != null) cozy.stop();
         if (database != null) database.close();
     }
@@ -161,6 +209,7 @@ public final class PawsocksPlugin extends JavaPlugin {
                     reloadConfig();
                     messages.load();
                     prices.load();
+                    shop.load();
                     socks.registerRecipe();
                     carrier.registerRecipe();
                     messages.send(sender, "reloaded");
@@ -193,6 +242,30 @@ public final class PawsocksPlugin extends JavaPlugin {
 
     public Prices prices() {
         return prices;
+    }
+
+    public Guard guard() {
+        return guard;
+    }
+
+    public Perks perks() {
+        return perks;
+    }
+
+    public Astras astras() {
+        return astras;
+    }
+
+    public AstraItems astraItems() {
+        return astraItems;
+    }
+
+    public Orders orders() {
+        return orders;
+    }
+
+    public CosmeticsFeature cosmetics() {
+        return cosmetics;
     }
 
     public Auction auction() {

@@ -50,6 +50,8 @@ carrier:
 economy:
   # сколько лапок у нового игрока
   start-balance: 0
+  # цена для предметов, у которых нет цены ни в prices.yml, ни из рецепта
+  fallback-price: 0.02
   # цена при наведении на предмет (нужен плагин packetevents)
   worth-lore: true
   # насыщение рынка: чем больше какой-то вещи продали серверу, тем дешевле он её берёт.
@@ -71,6 +73,31 @@ economy:
     max-listings: 5
     min-price: 0.01
     max-price: 1000000
+  shop:
+    enabled: true
+    # магазин продаёт минимум во столько раз дороже, чем сервер скупает
+    min-markup: 2.0
+  orders:
+    enabled: true
+    # комиссия с каждой сдачи по заказу, в процентах (сгорает)
+    commission-percent: 3
+    duration-hours: 72
+    max-per-player: 3
+    max-amount: 2304
+  smith:
+    enabled: true
+    # починка = цена предмета × доля поломки × repair-factor
+    repair-factor: 0.5
+    repair-min: 0.5
+    # сброс штрафа наковальни = reset-base + reset-per-level × уровень штрафа
+    reset-base: 10
+    reset-per-level: 2
+    rename: 5
+  # косметика в /paw: цена каждой вещи
+  cosmetics:
+    trail: 150
+    aura: 250
+    suffix: 300
 
 homes:
   enabled: true
@@ -81,3 +108,29 @@ homes:
   # задержка телепорта: пошевелился или получил урон — отмена
   warmup-seconds: 3
   cooldown-seconds: 5
+  # докупка точек дома за лапки: цена 1-й, 2-й, ... дополнительной точки
+  extra-slot-prices: [150, 400, 1000, 2500]
+
+astra:
+  enabled: true
+  # когда начинается новый день (для лимита и ежедневной награды)
+  timezone: Europe/Moscow
+  # 1 астра за столько минут активной игры, но не больше play-max-per-day в день
+  play-minutes: 30
+  play-max-per-day: 5
+  # сколько минут без движений считать афк (время афк не засчитывается)
+  afk-minutes: 5
+  # ежедневная награда за вход
+  daily:
+    astra-min: 1
+    astra-max: 3
+    lapki-min: 5
+    lapki-max: 15
+  # цены в магазине астр
+  shop:
+    drill: 40
+    timber: 25
+    smelt: 20
+    magnet: 15
+    catsight: 15
+    nine-lives: 30

@@ -46,7 +46,7 @@ public final class TrailsMenu extends Menu {
             } else if (allowed) {
                 lore.add(m.item("menu.trail-click"));
             } else {
-                lore.add(m.item("menu.trail-locked"));
+                lore.add(m.item(t.buyable ? "menu.trail-buy" : "menu.trail-locked"));
             }
             ItemStack icon = Items.icon(allowed ? t.icon : Material.GRAY_DYE,
                     m.item("menu.trail-name", Placeholder.unparsed("name", m.raw("trails.names." + t.id))), lore);
@@ -54,7 +54,11 @@ public final class TrailsMenu extends Menu {
             set(SLOTS[i], icon, viewer -> {
                 PawMenu.click(viewer);
                 if (!plugin.trails().canUse(viewer, t)) {
-                    m.send(viewer, "trails.locked");
+                    if (t.buyable) {
+                        plugin.cosmetics().open(viewer);
+                    } else {
+                        m.send(viewer, "trails.locked");
+                    }
                     return;
                 }
                 PlayerData.trail(viewer, t.id);

@@ -64,6 +64,25 @@ commands:
     description: список домов
     usage: /homes
     permission: pawsocks.homes
+  astra:
+    description: астры и магазин астр
+    usage: /astra
+    aliases: [astry, stars]
+    permission: pawsocks.astra
+  shop:
+    description: серверный магазин
+    usage: /shop
+    permission: pawsocks.shop
+  order:
+    description: доска заказов
+    usage: /order | /order create <кол-во> <цена>
+    aliases: [orders]
+    permission: pawsocks.orders
+  smith:
+    description: кузнец — починка, сброс штрафа, имя
+    usage: /smith | /smith name <текст>
+    aliases: [kuznec, blacksmith]
+    permission: pawsocks.smith
 
 permissions:
   pawsocks.menu:
@@ -108,3 +127,18 @@ permissions:
   pawsocks.homes.instant:
     description: телепорт домой без задержки
     default: false
+  pawsocks.astra:
+    description: получать астры и пользоваться магазином астр
+    default: true
+  pawsocks.astra.admin:
+    description: выдавать, забирать и задавать астры
+    default: op
+  pawsocks.shop:
+    description: покупать в серверном магазине
+    default: true
+  pawsocks.orders:
+    description: доска заказов
+    default: true
+  pawsocks.smith:
+    description: кузнец
+    default: true

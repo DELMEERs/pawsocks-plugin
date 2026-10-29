@@ -2,6 +2,7 @@ package club.zeroiq.pawsocks.homes;
 
 import club.zeroiq.pawsocks.PawsocksPlugin;
 import club.zeroiq.pawsocks.data.Database;
+import club.zeroiq.pawsocks.economy.Money;
 import club.zeroiq.pawsocks.gui.Menu;
 import club.zeroiq.pawsocks.util.Fx;
 import club.zeroiq.pawsocks.util.Items;
@@ -80,14 +81,41 @@ public final class HomesFeature implements CommandExecutor, TabCompleter, Listen
         return plugin.getConfig().getString("homes.default-name", "дом");
     }
 
-    /** -1 — без ограничений. */
+    /** -1 — без ограничений. Лимит группы + докупленные за лапки. */
     public int limit(Player player) {
         if (player.hasPermission("pawsocks.homes.unlimited")) return -1;
+        return groupLimit(player) + plugin.perks().counter(player.getUniqueId(), "home_slots");
+    }
+
+    private int groupLimit(Player player) {
         int best = plugin.getConfig().getInt("homes.default-limit", 1);
         for (int n = 1; n <= 54; n++) {
             if (player.hasPermission("pawsocks.homes." + n)) best = Math.max(best, n);
         }
         return best;
+    }
+
+    /** Цена следующей докупки или -1, если больше докупать нельзя. */
+    private long nextSlotPrice(int bought) {
+        List<String> prices = plugin.getConfig().getStringList("homes.extra-slot-prices");
+        if (prices.isEmpty()) prices = List.of("150", "400", "1000", "2500");
+        if (bought >= prices.size()) return -1;
+        return Money.parse(prices.get(bought));
+    }
+
+    private void buySlot(Player p) {
+        int bought = plugin.perks().counter(p.getUniqueId(), "home_slots");
+        long price = nextSlotPrice(bought);
+        if (price <= 0) {
+            m().send(p, "homes.slots-max");
+            return;
+        }
+        if (!plugin.perks().increment(p.getUniqueId(), "home_slots", bought, price, "home_slot " + (bought + 1))) {
+            m().send(p, "eco.not-enough", Money.tag(m(), "balance", plugin.economy().balance(p.getUniqueId())));
+            return;
+        }
+        m().send(p, "homes.slot-bought", Money.tag(m(), "price", price), Placeholder.unparsed("limit", String.valueOf(limit(p))));
+        Fx.sound(p.getLocation(), "minecraft:entity.player.levelup", 0.6f, 1.4f);
     }
 
     // --- данные ---
@@ -324,6 +352,17 @@ public final class HomesFeature implements CommandExecutor, TabCompleter, Listen
                     m().lore("homes.info-lore",
                             Placeholder.unparsed("count", String.valueOf(list.size())),
                             Placeholder.component("limit", limit < 0 ? m().get("homes.unlimited") : Component.text(limit)))), null);
+            if (limit >= 0) {
+                int bought = plugin.perks().counter(p.getUniqueId(), "home_slots");
+                long price = nextSlotPrice(bought);
+                set(51, Items.icon(Material.EMERALD, m().item("homes.buy-name"),
+                        price > 0 ? m().lore("homes.buy-lore", Money.tag(m(), "price", price),
+                                Placeholder.unparsed("bought", String.valueOf(bought)))
+                                : m().lore("homes.buy-max")), v -> {
+                    buySlot(v);
+                    open(v);
+                });
+            }
         }
     }
 

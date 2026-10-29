@@ -100,7 +100,59 @@ public final class Database {
                         created INTEGER NOT NULL,
                         PRIMARY KEY (uuid, name)
                     )""");
+
+            // 1.2: астры, ежедневные награды, доска заказов, покупки, счётчики
+            if (!hasColumn(s, "accounts", "astra")) {
+                s.execute("ALTER TABLE accounts ADD COLUMN astra INTEGER NOT NULL DEFAULT 0");
+            }
+            s.execute("""
+                    CREATE TABLE IF NOT EXISTS daily (
+                        uuid    TEXT NOT NULL,
+                        day     TEXT NOT NULL,
+                        played  INTEGER NOT NULL DEFAULT 0,
+                        earned  INTEGER NOT NULL DEFAULT 0,
+                        claimed INTEGER NOT NULL DEFAULT 0,
+                        PRIMARY KEY (uuid, day)
+                    )""");
+            s.execute("""
+                    CREATE TABLE IF NOT EXISTS orders (
+                        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                        owner       TEXT NOT NULL,
+                        owner_name  TEXT NOT NULL,
+                        material    TEXT NOT NULL,
+                        amount      INTEGER NOT NULL CHECK (amount > 0),
+                        filled      INTEGER NOT NULL DEFAULT 0,
+                        price       INTEGER NOT NULL CHECK (price > 0),
+                        escrow      INTEGER NOT NULL CHECK (escrow >= 0),
+                        created     INTEGER NOT NULL,
+                        expires     INTEGER NOT NULL,
+                        status      TEXT NOT NULL
+                    )""");
+            s.execute("CREATE INDEX IF NOT EXISTS orders_status ON orders (status, expires)");
+            s.execute("""
+                    CREATE TABLE IF NOT EXISTS owned (
+                        uuid TEXT NOT NULL,
+                        item TEXT NOT NULL,
+                        at   INTEGER NOT NULL,
+                        PRIMARY KEY (uuid, item)
+                    )""");
+            s.execute("""
+                    CREATE TABLE IF NOT EXISTS counters (
+                        uuid  TEXT NOT NULL,
+                        key   TEXT NOT NULL,
+                        value INTEGER NOT NULL,
+                        PRIMARY KEY (uuid, key)
+                    )""");
         }
+    }
+
+    private static boolean hasColumn(Statement s, String table, String column) throws SQLException {
+        try (var rs = s.executeQuery("PRAGMA table_info(" + table + ")")) {
+            while (rs.next()) {
+                if (column.equalsIgnoreCase(rs.getString("name"))) return true;
+            }
+        }
+        return false;
     }
 
     /** Запрос без транзакции. */

@@ -80,21 +80,22 @@ public final class SellFeature implements CommandExecutor, TabCompleter, Listene
 
     /** Продаёт стопки, возвращает непроданное. Деньги зачисляются одной операцией. */
     private Result sell(Player player, List<ItemStack> items) {
-        Map<Material, Integer> counts = new EnumMap<>(Material.class);
+        // стоимость по типам: поломанные вещи стоят меньше, поэтому считаем по каждой стопке
+        Map<Material, Long> value = new EnumMap<>(Material.class);
         List<ItemStack> rest = new ArrayList<>();
+        int sold = 0;
         for (ItemStack item : items) {
             if (item == null || item.getType().isAir()) continue;
             if (prices().sellable(item)) {
-                counts.merge(item.getType(), item.getAmount(), Integer::sum);
+                value.merge(item.getType(), prices().unit(item) * item.getAmount(), Long::sum);
+                sold += item.getAmount();
             } else {
                 rest.add(item);
             }
         }
         long total = 0;
-        int sold = 0;
-        for (Map.Entry<Material, Integer> e : counts.entrySet()) {
+        for (Map.Entry<Material, Long> e : value.entrySet()) {
             total += prices().sell(e.getKey(), e.getValue());
-            sold += e.getValue();
         }
         if (total > 0) {
             plugin.economy().deposit(player.getUniqueId(), total, "sell", sold + " шт.");
@@ -134,7 +135,8 @@ public final class SellFeature implements CommandExecutor, TabCompleter, Listene
         // только основной инвентарь и хотбар: броня и левая рука не трогаются
         for (int slot = 0; slot < 36; slot++) {
             ItemStack item = inv.getItem(slot);
-            if (prices().sellable(item)) {
+            // снаряжение (инструменты, броня, зачарованное, переименованное) /sell all не трогает
+            if (item != null && prices().sellable(item) && !Prices.gear(item)) {
                 taken.add(item.clone());
                 inv.setItem(slot, null);
             }
@@ -163,14 +165,16 @@ public final class SellFeature implements CommandExecutor, TabCompleter, Listene
     private void renderInfo(SellMenu menu) {
         Inventory inv = menu.getInventory();
         long total = 0;
-        Map<Material, Integer> counts = new EnumMap<>(Material.class);
+        Map<Material, Long> value = new EnumMap<>(Material.class);
         for (int i = 0; i < SIZE; i++) {
             if (i == INFO_SLOT) continue;
             ItemStack item = inv.getItem(i);
-            if (prices().sellable(item)) counts.merge(item.getType(), item.getAmount(), Integer::sum);
+            if (item != null && prices().sellable(item)) {
+                value.merge(item.getType(), prices().unit(item) * item.getAmount(), Long::sum);
+            }
         }
-        for (Map.Entry<Material, Integer> e : counts.entrySet()) {
-            total += prices().quote(e.getKey(), e.getValue());
+        for (Map.Entry<Material, Long> e : value.entrySet()) {
+            total += prices().quote(e.getKey(), e.getValue(), 1);
         }
         inv.setItem(INFO_SLOT, Items.icon(Material.GOLD_NUGGET, m().item("sell.menu-info"),
                 m().lore("sell.menu-info-lore", Money.tag(m(), "money", total))));

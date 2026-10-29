@@ -1,0 +1,102 @@
+# серверный магазин /shop: сервер продаёт то, что долго или неудобно добывать.
+# цена — в лапках за 1 штуку. сервер всегда продаёт дороже, чем скупает через /sell
+# (минимум в economy.shop.min-markup раз), поэтому купить и сразу продать с выгодой нельзя.
+# лапки за покупки сгорают — это один из главных «стоков» экономики.
+# после правки: /pawsocks reload
+
+categories:
+  building:
+    name: "<#FF9CC2>строительство"
+    icon: cherry_log
+    items:
+      moss_block: 1
+      mud: 0.5
+      packed_mud: 1
+      mud_bricks: 1.5
+      cherry_log: 1
+      mangrove_log: 1
+      pale_oak_log: 1
+      bamboo_block: 1
+      calcite: 0.5
+      tuff: 0.3
+      dripstone_block: 0.5
+      amethyst_block: 3
+      red_sand: 0.3
+      snow_block: 0.3
+      prismarine: 3
+      prismarine_bricks: 4
+      dark_prismarine: 5
+      sea_lantern: 6
+      end_stone_bricks: 2
+      purpur_block: 3
+      shroomlight: 3
+      ochre_froglight: 8
+      verdant_froglight: 8
+      pearlescent_froglight: 8
+      crying_obsidian: 4
+      blue_ice: 15
+  plants:
+    name: "<#FF9CC2>растения"
+    icon: cherry_sapling
+    items:
+      oak_sapling: 1
+      spruce_sapling: 1
+      birch_sapling: 1
+      jungle_sapling: 1.5
+      acacia_sapling: 1.5
+      dark_oak_sapling: 1.5
+      mangrove_propagule: 2
+      cherry_sapling: 3
+      pale_oak_sapling: 3
+      azalea: 3
+      flowering_azalea: 4
+      spore_blossom: 25
+      lily_pad: 1
+      cactus: 0.5
+      sugar_cane: 0.5
+      bamboo: 0.5
+      cocoa_beans: 1
+      sweet_berries: 0.5
+      glow_berries: 1
+      nether_wart: 2
+      chorus_flower: 5
+      torchflower_seeds: 10
+      pitcher_pod: 10
+      sea_pickle: 1
+      big_dripleaf: 2
+      pink_petals: 1
+      lily_of_the_valley: 0.5
+      cornflower: 0.5
+      blue_orchid: 1
+  useful:
+    name: "<#FF9CC2>полезное"
+    icon: name_tag
+    items:
+      name_tag: 15
+      saddle: 10
+      lead: 2
+      experience_bottle: 3
+      slime_ball: 1.5
+      honey_bottle: 1.5
+      ink_sac: 0.3
+      glow_ink_sac: 1
+      ender_pearl: 4
+      blaze_rod: 4
+      nautilus_shell: 10
+  music:
+    name: "<#FF9CC2>пластинки"
+    icon: music_disc_cat
+    items:
+      music_disc_cat: 25
+      music_disc_13: 25
+      music_disc_blocks: 25
+      music_disc_chirp: 25
+      music_disc_far: 25
+      music_disc_mall: 25
+      music_disc_mellohi: 25
+      music_disc_stal: 25
+      music_disc_strad: 25
+      music_disc_ward: 25
+      music_disc_wait: 25
+      music_disc_creator_music_box: 30
+      music_disc_precipice: 30

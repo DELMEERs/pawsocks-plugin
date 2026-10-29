@@ -120,6 +120,10 @@ public final class AuctionFeature implements CommandExecutor, TabCompleter, List
             m().send(player, "ah.empty-hand");
             return;
         }
+        if (plugin.guard().blockedForTrade(hand)) {
+            m().send(player, "ah.blocked");
+            return;
+        }
         int limit = limit(player);
         if (ah().bySeller(player.getUniqueId()).size() >= limit) {
             m().send(player, "ah.limit", Placeholder.unparsed("limit", String.valueOf(limit)));
