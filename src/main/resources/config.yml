@@ -1,0 +1,48 @@
+# настройки фишек pawsocks. после правки: /pawsocks reload
+
+socks:
+  enabled: true
+  # во сколько раз уменьшается урон от падения в носках (0.6 = на 40% меньше)
+  fall-damage-multiplier: 0.6
+
+cozy:
+  enabled: true
+  # радиус в блоках, в котором греет зажжённый костёр
+  campfire-radius: 3
+  # радиус, в котором засчитывается свой питомец
+  pet-radius: 8
+  # сколько уюта (из 100) прибавляется в секунду
+  gain:
+    campfire: 4
+    pet: 1
+    sitting: 2
+    socks: 1
+  # сколько уюта теряется в секунду, когда рядом ничего уютного
+  decay: 2
+  decay-in-socks: 1
+  # разовые прибавки
+  petting-bonus: 8
+  hug-bonus: 25
+  # сколько уюта отнимает полученный урон
+  damage-penalty: 15
+  # сколько секунд без урона нужно, чтобы на 100% уюта шла регенерация
+  calm-seconds: 10
+
+petting:
+  enabled: true
+  cooldown-seconds: 3
+
+hugs:
+  enabled: true
+  max-distance: 8
+  request-seconds: 60
+  cooldown-seconds: 30
+  regen-seconds: 5
+
+trails:
+  enabled: true
+  # через сколько блоков оставлять следующий отпечаток
+  step: 1.1
+
+carrier:
+  enabled: true

@@ -1,0 +1,39 @@
+name: pawsocks
+version: '${version}'
+main: club.zeroiq.pawsocks.PawsocksPlugin
+api-version: '1.21'
+description: уникальные фишки сервера pawsocks
+author: DELMEERs
+website: https://femden.zeroiq.club
+
+commands:
+  paw:
+    description: меню лапки
+    usage: /paw
+    aliases: [lapka]
+    permission: pawsocks.menu
+  hug:
+    description: обнять игрока
+    usage: /hug <ник> | /hug accept | /hug deny
+    permission: pawsocks.hug
+  pawsocks:
+    description: управление плагином
+    usage: /pawsocks reload
+    permission: pawsocks.admin
+
+permissions:
+  pawsocks.menu:
+    description: открывать меню /paw
+    default: true
+  pawsocks.hug:
+    description: обниматься
+    default: true
+  pawsocks.trails:
+    description: оставлять следы лапок
+    default: true
+  pawsocks.trails.premium:
+    description: особые цвета следов (для саппортеров)
+    default: op
+  pawsocks.admin:
+    description: перезагрузка конфига и текстов
+    default: op
