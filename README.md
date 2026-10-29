@@ -57,7 +57,7 @@ lp group owner permission set pawsocks.homes.unlimited true
 - `plugins/pawsocks/messages.yml` — все тексты, формат [minimessage](https://docs.advntr.dev/minimessage/format).
 - после правки: `/pawsocks reload`.
 
-всё, что плагин помнит об игроках (уют, обнимашки, выбранные следы, настройки), хранится в данных игрока — отдельной базы нет.
+уют, обнимашки, выбранные следы и настройки хранятся в данных игрока. счета, журнал операций, лоты аукциона, возврат и дома — в `plugins/pawsocks/data.db` (sqlite): её и стоит бэкапить.
 
 ## сборка
 
