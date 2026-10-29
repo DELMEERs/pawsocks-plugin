@@ -5,8 +5,9 @@ api-version: '1.21'
 description: уникальные фишки сервера pawsocks
 author: DELMEERs
 website: https://femden.zeroiq.club
-# packetevents нужен только для цены при наведении; без него всё остальное работает
-softdepend: [packetevents]
+# packetevents — цена при наведении и локатор для друзей; tgbridge — сообщения в телеграм.
+# всё это необязательно: без них остальное работает
+softdepend: [packetevents, tgbridge, FlectonePulse, LuckPerms]
 
 commands:
   paw:
