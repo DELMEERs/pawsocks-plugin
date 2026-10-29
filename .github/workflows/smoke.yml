@@ -1,0 +1,73 @@
+name: проверка на сервере
+
+# поднимает чистый paper 1.21.11 с плагином, выполняет команды из консоли
+# и падает, если плагин не включился или в логе есть его ошибки
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.14.3
+
+      - name: сборка
+        run: gradle build --no-daemon
+
+      - name: скачать paper 1.21.11
+        run: |
+          url=$(curl -fsSL -H 'User-Agent: pawsocks-ci (github.com/DELMEERs/pawsocks-plugin)' \
+            https://fill.papermc.io/v3/projects/paper/versions/1.21.11/builds/latest \
+            | jq -r '.downloads["server:default"].url')
+          echo "paper: $url"
+          mkdir -p server/plugins
+          curl -fsSL -o server/paper.jar "$url"
+          cp build/libs/*.jar server/plugins/
+          echo "eula=true" > server/eula.txt
+          printf 'online-mode=false\nlevel-type=minecraft\\:flat\ngenerate-structures=false\nspawn-protection=0\n' > server/server.properties
+
+      - name: запуск
+        working-directory: server
+        run: |
+          mkfifo console
+          (
+            # ждём, пока сервер поднимется, потом шлём команды
+            for i in $(seq 1 180); do grep -q 'Done (' logs/latest.log 2>/dev/null && break; sleep 1; done
+            sleep 3
+            echo "pawsocks reload"; sleep 2
+            echo "plugins"; sleep 2
+            echo "stop"
+          ) > console &
+          timeout 300 java -Xmx2G -jar paper.jar --nogui < console | tee run.log
+
+      - name: разбор лога
+        working-directory: server
+        run: |
+          set -e
+          grep -q 'pawsocks включён' run.log || { echo "::error::плагин не включился"; exit 1; }
+          grep -q 'pawsocks: конфиг и тексты перезагружены' run.log || { echo "::error::/pawsocks reload не сработал"; exit 1; }
+          if grep -nE 'Error occurred while enabling pawsocks|\[pawsocks\].*(Exception|ERROR)|club\.zeroiq\.pawsocks.*Exception|Exception.*club\.zeroiq\.pawsocks|at club\.zeroiq\.pawsocks' run.log; then
+            echo "::error::в логе ошибки плагина"; exit 1
+          fi
+          test -f plugins/pawsocks/config.yml
+          test -f plugins/pawsocks/messages.yml
+          echo "плагин загрузился без ошибок"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: server-log
+          path: server/run.log
