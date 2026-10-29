@@ -129,8 +129,7 @@ public final class CarrierFeature implements Listener {
         if (!enabled() || hasPet(hand)) return;
 
         Entity pet = event.getRightClicked();
-        if (!(pet instanceof Tameable t) || !t.isTamed() || t.getOwner() == null
-                || !player.getUniqueId().equals(t.getOwner().getUniqueId())) {
+        if (!(pet instanceof Tameable t) || !t.isTamed() || !player.getUniqueId().equals(t.getOwnerUniqueId())) {
             m().actionBar(player, "carrier.not-yours");
             return;
         }

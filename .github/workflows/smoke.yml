@@ -57,6 +57,10 @@ jobs:
         working-directory: server
         run: |
           set -e
+          # строки про плагин — в аннотации запуска, чтобы их было видно без скачивания лога
+          grep -iE 'pawsocks|exception' run.log | sed 's/\x1b\[[0-9;]*m//g' | head -25 | while IFS= read -r line; do
+            echo "::notice title=лог сервера::${line}"
+          done
           grep -q 'pawsocks включён' run.log || { echo "::error::плагин не включился"; exit 1; }
           grep -q 'pawsocks: конфиг и тексты перезагружены' run.log || { echo "::error::/pawsocks reload не сработал"; exit 1; }
           if grep -nE 'Error occurred while enabling pawsocks|\[pawsocks\].*(Exception|ERROR)|club\.zeroiq\.pawsocks.*Exception|Exception.*club\.zeroiq\.pawsocks|at club\.zeroiq\.pawsocks' run.log; then

@@ -120,8 +120,10 @@ public final class CozyFeature implements Listener {
 
             Long hit = lastDamage.get(player.getUniqueId());
             boolean calm = hit == null || now - hit >= calmMillis;
-            if (after >= 100 && calm) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 60, 0, true, false, true));
+            // эффект выдаём заново только когда прошлый закончился: если обновлять его
+            // каждую секунду, майнкрафт лечит каждую секунду, а не раз в 2,5 с, как положено
+            if (after >= 100 && calm && !player.hasPotionEffect(PotionEffectType.REGENERATION)) {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 0, true, false, true));
             }
         }
     }
@@ -172,8 +174,7 @@ public final class CozyFeature implements Listener {
     private boolean nearOwnPet(Player player) {
         double r = cfg().getDouble("cozy.pet-radius", 8);
         for (Entity e : player.getNearbyEntities(r, r / 2, r)) {
-            if (e instanceof Tameable t && t.isTamed() && t.getOwner() != null
-                    && player.getUniqueId().equals(t.getOwner().getUniqueId())) {
+            if (e instanceof Tameable t && t.isTamed() && player.getUniqueId().equals(t.getOwnerUniqueId())) {
                 return true;
             }
         }
