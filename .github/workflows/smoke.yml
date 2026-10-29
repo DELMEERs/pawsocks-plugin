@@ -70,7 +70,7 @@ jobs:
         run: |
           set -e
           # строки про плагин — в аннотации запуска, чтобы их было видно без скачивания лога
-          grep -iE 'pawsocks|packetevents|exception|лапок|цены' run.log | sed 's/\x1b\[[0-9;]*m//g' | head -25 | while IFS= read -r line; do
+          grep -iE '\[pawsocks\]|exception|лапок|цены|shop.yml' run.log | grep -v 'Loading server plugin' | sed 's/\x1b\[[0-9;]*m//g' | head -25 | while IFS= read -r line; do
             echo "::notice title=лог сервера::${line}"
           done
           grep -q 'pawsocks включён' run.log || { echo "::error::плагин не включился"; exit 1; }
