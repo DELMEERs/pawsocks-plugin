@@ -51,6 +51,16 @@ public final class Economy {
         }
     }
 
+    /** Имя по uuid (из счёта, даже если игрок не в сети). */
+    public String name(UUID uuid) {
+        return db.read(c -> {
+            try (java.sql.PreparedStatement ps = Database.prepare(c, "SELECT name FROM accounts WHERE uuid = ?", uuid.toString());
+                 java.sql.ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getString(1) : "?";
+            }
+        });
+    }
+
     public Account find(String name) {
         return db.read(c -> {
             try (PreparedStatement ps = Database.prepare(c,

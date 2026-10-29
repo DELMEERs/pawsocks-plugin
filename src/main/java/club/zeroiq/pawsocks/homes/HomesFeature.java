@@ -241,6 +241,7 @@ public final class HomesFeature implements CommandExecutor, TabCompleter, Listen
         String stored = existing != null ? existing.name() : name;
         save(player.getUniqueId(), stored, player.getLocation());
         m().send(player, existing != null ? "homes.moved" : "homes.set", Placeholder.unparsed("name", stored));
+        plugin.achievements().grant(player, "home");
         Fx.sound(player.getLocation(), "minecraft:block.note_block.bell", 0.6f, 1.4f);
         player.getWorld().spawnParticle(Particle.HAPPY_VILLAGER, player.getLocation().add(0, 1, 0), 12, 0.4, 0.6, 0.4, 0);
     }

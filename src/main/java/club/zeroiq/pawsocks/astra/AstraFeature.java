@@ -118,6 +118,7 @@ public final class AstraFeature implements CommandExecutor, TabCompleter, Listen
             try {
                 int got = astras().addPlay(p.getUniqueId(), day, 60, period, max);
                 if (got > 0) {
+                    plugin.achievements().grant(p, "astra");
                     int earned = astras().daily(p.getUniqueId(), day).earned();
                     m().send(p, "astra.earned",
                             tag(m(), "astra", got),
@@ -144,6 +145,7 @@ public final class AstraFeature implements CommandExecutor, TabCompleter, Listen
         long lapki = lMin <= 0 ? 0 : (r.nextLong(lMin / 100, lMax / 100 + 1) * 100);
         if (astras().claimDaily(p.getUniqueId(), day, astra, lapki)) {
             m().send(p, "astra.daily", tag(m(), "astra", astra), Money.tag(m(), "money", lapki));
+            if (astra > 0) plugin.achievements().grant(p, "astra");
             Fx.sound(p.getLocation(), "minecraft:entity.player.levelup", 0.6f, 1.4f);
         }
     }
@@ -209,7 +211,7 @@ public final class AstraFeature implements CommandExecutor, TabCompleter, Listen
             m().send(p, "no-permission");
             return true;
         }
-        new ShopMenu().open(p);
+        openShop(p);
         return true;
     }
 
@@ -270,6 +272,10 @@ public final class AstraFeature implements CommandExecutor, TabCompleter, Listen
         return Items.icon(Material.BLACK_STAINED_GLASS_PANE, Component.empty(), List.of());
     }
 
+    public void openShop(Player p) {
+        new ShopMenu().open(p);
+    }
+
     private final class ShopMenu extends Menu {
         ShopMenu() {
             super(4, plugin.messages().get("astra.shop.title"));
@@ -278,9 +284,12 @@ public final class AstraFeature implements CommandExecutor, TabCompleter, Listen
         @Override
         protected void render(Player p) {
             for (int i = 0; i < 36; i++) set(i, pane(), null);
-            int[] slots = {10, 11, 12, 13, 14};
+            UUID u = p.getUniqueId();
+
+            // чары: возьми инструмент в руку
+            int[] slots = {10, 11, 12};
             List<Ench> all = AstraItems.all();
-            for (int i = 0; i < all.size(); i++) {
+            for (int i = 0; i < all.size() && i < slots.length; i++) {
                 Ench e = all.get(i);
                 int cost = price(e.id);
                 ItemStack icon = Items.icon(e.icon, m().item("astra.ench." + e.id + ".name"),
@@ -288,25 +297,66 @@ public final class AstraFeature implements CommandExecutor, TabCompleter, Listen
                 Items.glow(icon);
                 set(slots[i], icon, v -> new ConfirmMenu(e.id, cost, this).open(v));
             }
-            int tCost = price("nine-lives");
-            ItemStack talisman = plugin.astraItems().talisman();
-            var meta = talisman.getItemMeta();
-            List<Component> lore = new ArrayList<>(m().lore("astra.talisman.lore"));
-            lore.addAll(m().lore("astra.shop.price-lore", tag(m(), "price", tCost)));
-            meta.lore(lore);
-            talisman.setItemMeta(meta);
-            set(16, talisman, v -> new ConfirmMenu("nine-lives", tCost, this).open(v));
+
+            // звёздный фонарь
+            int lampCost = price("lamp");
+            ItemStack lamp = plugin.astraItems().lamp();
+            var lampMeta = lamp.getItemMeta();
+            List<Component> lampLore = new ArrayList<>(m().lore("astra.lamp.lore",
+                    Placeholder.unparsed("radius", String.valueOf(plugin.lamps().radius()))));
+            lampLore.addAll(m().lore("astra.shop.price-lore", tag(m(), "price", lampCost)));
+            lampMeta.lore(lampLore);
+            lamp.setItemMeta(lampMeta);
+            set(14, lamp, v -> new ConfirmMenu("lamp", lampCost, this).open(v));
+
+            // звёздный ник
+            int nickCost = price("star-nick");
+            boolean nickOwned = plugin.perks().owns(u, StarFeature.NICK);
+            ItemStack nick = Items.icon(Material.NAME_TAG, m().item("astra.star-nick.name"),
+                    concat(m().lore("astra.star-nick.lore"),
+                            nickOwned ? m().lore("astra.shop.owned-open") : m().lore("astra.shop.price-lore", tag(m(), "price", nickCost))));
+            Items.glow(nick);
+            set(15, nick, v -> {
+                if (plugin.perks().owns(v.getUniqueId(), StarFeature.NICK)) plugin.stars().openStyles(v, this);
+                else new ConfirmMenu("star-nick", nickCost, this).open(v);
+            });
+
+            // звёздный вход
+            int joinCost = price("star-join");
+            boolean joinOwned = plugin.perks().owns(u, StarFeature.JOIN);
+            List<Component> joinState = joinOwned
+                    ? m().lore(plugin.stars().joinEnabled(u) ? "astra.star-join.state-on" : "astra.star-join.state-off")
+                    : m().lore("astra.shop.price-lore", tag(m(), "price", joinCost));
+            ItemStack join = Items.icon(Material.FIREWORK_ROCKET, m().item("astra.star-join.name"),
+                    concat(m().lore("astra.star-join.lore"), joinState));
+            Items.glow(join);
+            set(16, join, v -> {
+                if (plugin.perks().owns(v.getUniqueId(), StarFeature.JOIN)) {
+                    boolean on = plugin.stars().toggleJoin(v);
+                    m().send(v, on ? "astra.star-join.enabled" : "astra.star-join.disabled");
+                    if (on) plugin.stars().starfall(v);
+                    open(v);
+                } else {
+                    new ConfirmMenu("star-join", joinCost, this).open(v);
+                }
+            });
 
             String day = today();
-            Astras.Daily d = astras().daily(p.getUniqueId(), day);
+            Astras.Daily d = astras().daily(u, day);
             int max = plugin.getConfig().getInt("astra.play-max-per-day", 5);
-            set(31, plugin.astraItems().astraIcon(m().item("astra.shop.balance-name", tag(m(), "astra", astras().balance(p.getUniqueId()))),
+            set(31, plugin.astraItems().astraIcon(m().item("astra.shop.balance-name", tag(m(), "astra", astras().balance(u))),
                     m().lore("astra.shop.balance-lore",
                             Placeholder.unparsed("done", String.valueOf(d.earned())),
                             Placeholder.unparsed("max", String.valueOf(max)),
                             Placeholder.unparsed("minutes", String.valueOf(plugin.getConfig().getInt("astra.play-minutes", 30))),
                             Placeholder.component("daily", m().get(d.claimed() ? "astra.shop.daily-yes" : "astra.shop.daily-no")))), null);
         }
+    }
+
+    private static List<Component> concat(List<Component> a, List<Component> b) {
+        List<Component> out = new ArrayList<>(a);
+        out.addAll(b);
+        return out;
     }
 
     private final class ConfirmMenu extends Menu {
@@ -325,50 +375,90 @@ public final class AstraFeature implements CommandExecutor, TabCompleter, Listen
         protected void render(Player p) {
             for (int i = 0; i < 27; i++) set(i, pane(), null);
             Ench e = Ench.byId(id);
-            String nameKey = e == null ? "astra.talisman.name" : "astra.ench." + id + ".name";
-            set(13, Items.glow(Items.icon(e == null ? Material.HEART_OF_THE_SEA : e.icon, m().item(nameKey),
-                    e == null ? List.of() : m().lore("astra.shop.need-" + id))), null);
+            ItemStack shown = switch (id) {
+                case "lamp" -> plugin.astraItems().lamp();
+                case "star-nick" -> Items.glow(Items.icon(Material.NAME_TAG, m().item("astra.star-nick.name"), List.of()));
+                case "star-join" -> Items.glow(Items.icon(Material.FIREWORK_ROCKET, m().item("astra.star-join.name"), List.of()));
+                default -> Items.glow(Items.icon(e.icon, m().item("astra.ench." + id + ".name"), m().lore("astra.shop.need-" + id)));
+            };
+            set(13, shown, null);
             set(11, Items.icon(Material.LIME_WOOL, m().item("astra.shop.yes", tag(m(), "price", cost)), List.of()), v -> {
                 v.closeInventory();
-                buy(v, id, cost);
+                buy(v, id, cost, back);
             });
             set(15, Items.icon(Material.RED_WOOL, m().item("astra.shop.no"), List.of()), v -> back.open(v));
         }
     }
 
-    private void buy(Player p, String id, int cost) {
-        Ench e = Ench.byId(id);
-        ItemStack hand = p.getInventory().getItemInMainHand();
-        if (e != null) {
-            if (hand.getType().isAir() || !e.fits(hand.getType())) {
-                m().send(p, "astra.shop.wrong-item", Placeholder.component("need", m().get("astra.shop.need-" + id + "-short")));
-                return;
-            }
-            if (plugin.astraItems().has(hand, e)) {
-                m().send(p, "astra.shop.already");
-                return;
-            }
-            if (hand.getAmount() != 1) {
-                m().send(p, "astra.shop.one-item");
-                return;
-            }
-        } else if (p.getInventory().firstEmpty() < 0) {
-            m().send(p, "ah.no-room");
-            return;
-        }
-        if (!astras().spend(p.getUniqueId(), cost, id)) {
-            m().send(p, "astra.shop.no-astra", tag(m(), "price", cost), tag(m(), "astra", astras().balance(p.getUniqueId())));
-            return;
-        }
-        if (e != null) {
-            plugin.astraItems().apply(hand, e);
-            p.getInventory().setItemInMainHand(hand);
-            m().send(p, "astra.shop.applied", Placeholder.component("ench", m().get("astra.ench." + id + ".name")));
-        } else {
-            p.getInventory().addItem(plugin.astraItems().talisman());
-            m().send(p, "astra.shop.bought-talisman");
-        }
+    private void noAstra(Player p, int cost) {
+        m().send(p, "astra.shop.no-astra", tag(m(), "price", cost), tag(m(), "astra", astras().balance(p.getUniqueId())));
+    }
+
+    private void bought(Player p) {
         Fx.sound(p.getLocation(), "minecraft:block.enchantment_table.use", 1f, 1f);
         Fx.sound(p.getLocation(), "minecraft:block.amethyst_block.resonate", 1f, 1.2f);
+        plugin.achievements().grant(p, "astra_shop");
+    }
+
+    private void buy(Player p, String id, int cost, ShopMenu back) {
+        switch (id) {
+            case "lamp" -> {
+                ItemStack lamp = plugin.astraItems().lamp();
+                if (!Items.hasRoom(p, lamp)) {
+                    m().send(p, "ah.no-room");
+                    return;
+                }
+                if (!astras().spend(p.getUniqueId(), cost, id)) {
+                    noAstra(p, cost);
+                    return;
+                }
+                Items.give(p, lamp);
+                m().send(p, "astra.lamp.bought");
+                bought(p);
+            }
+            case "star-nick", "star-join" -> {
+                String item = id.equals("star-nick") ? StarFeature.NICK : StarFeature.JOIN;
+                switch (plugin.perks().buyAstra(p.getUniqueId(), item, cost, id)) {
+                    case ALREADY -> m().send(p, "astra.shop.already-owned");
+                    case NO_MONEY -> noAstra(p, cost);
+                    case OK -> {
+                        bought(p);
+                        if (id.equals("star-nick")) {
+                            m().send(p, "astra.star-nick.bought");
+                            plugin.stars().openStyles(p, back);
+                        } else {
+                            plugin.stars().ownedJoin(p.getUniqueId());
+                            m().send(p, "astra.star-join.bought");
+                            plugin.stars().starfall(p);
+                        }
+                    }
+                }
+            }
+            default -> {
+                Ench e = Ench.byId(id);
+                if (e == null) return;
+                ItemStack hand = p.getInventory().getItemInMainHand();
+                if (hand.getType().isAir() || !e.fits(hand.getType())) {
+                    m().send(p, "astra.shop.wrong-item", Placeholder.component("need", m().get("astra.shop.need-" + id + "-short")));
+                    return;
+                }
+                if (plugin.astraItems().has(hand, e)) {
+                    m().send(p, "astra.shop.already");
+                    return;
+                }
+                if (hand.getAmount() != 1) {
+                    m().send(p, "astra.shop.one-item");
+                    return;
+                }
+                if (!astras().spend(p.getUniqueId(), cost, id)) {
+                    noAstra(p, cost);
+                    return;
+                }
+                plugin.astraItems().apply(hand, e);
+                p.getInventory().setItemInMainHand(hand);
+                m().send(p, "astra.shop.applied", Placeholder.component("ench", m().get("astra.ench." + id + ".name")));
+                bought(p);
+            }
+        }
     }
 }

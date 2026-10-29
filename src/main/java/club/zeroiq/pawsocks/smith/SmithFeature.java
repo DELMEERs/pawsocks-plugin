@@ -52,6 +52,10 @@ public final class SmithFeature implements CommandExecutor {
             return true;
         }
         if (args.length >= 1 && args[0].equalsIgnoreCase("name")) {
+            if (args.length == 1 && plugin.dialogs().enabled()) {
+                nameDialog(p);
+                return true;
+            }
             rename(p, String.join(" ", java.util.Arrays.copyOfRange(args, 1, args.length)).trim());
             return true;
         }
@@ -128,6 +132,7 @@ public final class SmithFeature implements CommandExecutor {
         if (meta instanceof Damageable d) d.setDamage(0);
         hand.setItemMeta(meta);
         m().send(p, "smith.repaired", Money.tag(m(), "money", cost));
+        plugin.achievements().grant(p, "smith");
         Fx.sound(p.getLocation(), "minecraft:block.anvil.use", 0.6f, 1.2f);
     }
 
@@ -143,7 +148,33 @@ public final class SmithFeature implements CommandExecutor {
         if (meta instanceof Repairable r) r.setRepairCost(0);
         hand.setItemMeta(meta);
         m().send(p, "smith.reset", Money.tag(m(), "money", cost));
+        plugin.achievements().grant(p, "smith");
         Fx.sound(p.getLocation(), "minecraft:block.grindstone.use", 0.7f, 1.1f);
+    }
+
+    /** Окно с полем для нового имени. Пустое поле — убрать имя. */
+    public void nameDialog(Player p) {
+        ItemStack hand = p.getInventory().getItemInMainHand();
+        if (hand.getType().isAir()) {
+            m().send(p, "smith.empty-hand");
+            return;
+        }
+        String current = hand.hasItemMeta() && hand.getItemMeta().hasDisplayName()
+                ? net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(hand.getItemMeta().displayName())
+                : "";
+        if (current.length() > MAX_NAME) current = current.substring(0, MAX_NAME);
+        org.bukkit.Material type = hand.getType();
+        plugin.dialogs().confirm(p, m().get("smith.dialog.title"),
+                m().lore("smith.dialog.body", Money.tag(m(), "price", renameCost()), Placeholder.unparsed("max", String.valueOf(MAX_NAME))),
+                java.util.List.of(club.zeroiq.pawsocks.util.Dialogs.text("name", m().get("smith.dialog.label"), current, MAX_NAME)),
+                m().get("smith.dialog.yes"), m().get("smith.dialog.no"),
+                (v, view) -> {
+                    if (v.getInventory().getItemInMainHand().getType() != type) {
+                        m().send(v, "smith.dialog.changed");
+                        return;
+                    }
+                    rename(v, club.zeroiq.pawsocks.util.Dialogs.textValue(view, "name"));
+                });
     }
 
     private void rename(Player p, String text) {
@@ -167,6 +198,7 @@ public final class SmithFeature implements CommandExecutor {
         }
         hand.setItemMeta(meta);
         m().send(p, text.isEmpty() ? "smith.unnamed" : "smith.renamed", Money.tag(m(), "money", cost));
+        plugin.achievements().grant(p, "smith");
         Fx.sound(p.getLocation(), "minecraft:block.anvil.use", 0.5f, 1.5f);
     }
 
@@ -220,7 +252,11 @@ public final class SmithFeature implements CommandExecutor {
 
             set(22, Items.icon(Material.NAME_TAG, m().item("smith.rename-name"),
                     m().lore("smith.rename-lore", Money.tag(m(), "price", renameCost()),
-                            Placeholder.unparsed("max", String.valueOf(MAX_NAME)))), null);
+                            Placeholder.unparsed("max", String.valueOf(MAX_NAME)))), v -> {
+                v.closeInventory();
+                if (plugin.dialogs().enabled()) nameDialog(v);
+                else m().send(v, "smith.name-usage");
+            });
         }
     }
 }

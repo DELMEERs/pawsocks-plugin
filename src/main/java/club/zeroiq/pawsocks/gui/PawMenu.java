@@ -85,21 +85,28 @@ public final class PawMenu extends Menu {
                     open(viewer);
                 });
 
-        // обнимашки
-        set(11, Items.icon(Material.PINK_WOOL, m.item("menu.hugs.name"),
+        // общение: обнимашки, эмоции, друзья
+        set(10, Items.icon(Material.PINK_WOOL, m.item("menu.hugs.name"),
                         m.lore("menu.hugs.lore", Placeholder.component("state", state(PlayerData.hugsAllowed(p))))),
                 viewer -> {
                     PlayerData.hugsAllowed(viewer, !PlayerData.hugsAllowed(viewer));
                     click(viewer);
                     open(viewer);
                 });
-        // косметика и дома
-        set(13, Items.icon(Material.AMETHYST_CLUSTER, m.item("menu.cosmetics.name"), m.lore("menu.cosmetics.lore")),
+        set(11, Items.icon(Material.NOTE_BLOCK, m.item("menu.emotes.name"), m.lore("menu.emotes.lore")), command("emote"));
+        set(12, Items.icon(Material.CAKE, m.item("menu.friends.name"), m.lore("menu.friends.lore")),
+                viewer -> {
+                    click(viewer);
+                    plugin.friends().open(viewer);
+                });
+        // косметика, дома, достижения
+        set(14, Items.icon(Material.AMETHYST_CLUSTER, m.item("menu.cosmetics.name"), m.lore("menu.cosmetics.lore")),
                 viewer -> {
                     click(viewer);
                     plugin.cosmetics().open(viewer);
                 });
         set(15, Items.icon(Material.RED_BED, m.item("menu.homes.name"), m.lore("menu.homes.lore")), command("homes"));
+        set(16, Items.icon(Material.GOLDEN_APPLE, m.item("menu.achievements.name"), m.lore("menu.achievements.lore")), null);
 
         // экономика
         set(28, Items.icon(Material.GOLD_INGOT, m.item("menu.auction.name"), m.lore("menu.auction.lore")), command("ah"));

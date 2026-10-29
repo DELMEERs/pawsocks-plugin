@@ -143,4 +143,15 @@ public final class Astras {
             return true;
         });
     }
+
+    /** Сколько раз забрана ежедневная награда (для достижения). */
+    public int claimedDays(UUID uuid) {
+        return db.read(c -> {
+            try (PreparedStatement ps = Database.prepare(c,
+                    "SELECT COUNT(*) FROM daily WHERE uuid = ? AND claimed = 1", uuid.toString());
+                 ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        });
+    }
 }

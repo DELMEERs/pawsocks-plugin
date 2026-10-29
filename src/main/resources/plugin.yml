@@ -83,6 +83,41 @@ commands:
     usage: /smith | /smith name <текст>
     aliases: [kuznec, blacksmith]
     permission: pawsocks.smith
+  emote:
+    description: эмоции
+    usage: /emote [мяу|мурр|...]
+    aliases: [emotes]
+    permission: pawsocks.emotes
+  meow:
+    description: мяукнуть
+    usage: /meow
+    permission: pawsocks.emotes
+  purr:
+    description: помурчать
+    usage: /purr
+    permission: pawsocks.emotes
+  boop:
+    description: буп в нос тому, на кого смотришь
+    usage: /boop
+    permission: pawsocks.emotes
+  wave:
+    description: помахать лапкой
+    usage: /wave
+    permission: pawsocks.emotes
+  friend:
+    description: друзья
+    usage: /friend | /friend add|accept|deny|remove <ник>
+    aliases: [friends]
+    permission: pawsocks.friends
+  couple:
+    description: парочки
+    usage: /couple propose <ник> | accept | deny | home | sethome | leave
+    aliases: [partner]
+    permission: pawsocks.friends
+  mentor:
+    description: кто позвал тебя на сервер
+    usage: /mentor [ник]
+    permission: pawsocks.mentor
 
 permissions:
   pawsocks.menu:
@@ -141,4 +176,13 @@ permissions:
     default: true
   pawsocks.smith:
     description: кузнец
+    default: true
+  pawsocks.emotes:
+    description: эмоции
+    default: true
+  pawsocks.friends:
+    description: друзья и парочки
+    default: true
+  pawsocks.mentor:
+    description: наставники
     default: true

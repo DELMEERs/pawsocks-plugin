@@ -83,7 +83,8 @@ public final class OrdersFeature implements CommandExecutor, TabCompleter {
         }
         if (args.length >= 1 && args[0].equalsIgnoreCase("create")) {
             if (args.length < 3) {
-                m().send(p, "orders.usage");
+                if (plugin.dialogs().enabled()) createDialog(p);
+                else m().send(p, "orders.usage");
                 return true;
             }
             create(p, args[1], args[2]);
@@ -91,6 +92,39 @@ public final class OrdersFeature implements CommandExecutor, TabCompleter {
         }
         new BoardMenu(0).open(p);
         return true;
+    }
+
+    /** Окно заказа: сколько и за сколько, образец — в руке. */
+    public void createDialog(Player p) {
+        ItemStack hand = p.getInventory().getItemInMainHand();
+        Material mat = hand.getType();
+        if (mat.isAir()) {
+            m().send(p, "orders.empty-hand");
+            return;
+        }
+        if (Guard.neverSold(mat) || plugin.guard().blockedForTrade(hand)) {
+            m().send(p, "orders.blocked");
+            return;
+        }
+        int maxAmount = plugin.getConfig().getInt("economy.orders.max-amount", 2304);
+        int initial = Math.min(maxAmount, mat.getMaxStackSize());
+        long unit = Math.max(1, plugin.prices().base(mat));
+        String suggested = Money.plain(unit * initial * 3 / 2);
+        plugin.dialogs().confirm(p, m().get("orders.dialog.title"),
+                m().lore("orders.dialog.body", Placeholder.component("item", Items.name(new ItemStack(mat))),
+                        Placeholder.unparsed("commission", trim(commission()))),
+                List.of(club.zeroiq.pawsocks.util.Dialogs.number("amount", m().get("orders.dialog.amount"), 1, maxAmount, initial),
+                        club.zeroiq.pawsocks.util.Dialogs.text("price", m().get("orders.dialog.price"), suggested, 12)),
+                m().get("orders.dialog.yes"), m().get("orders.dialog.no"),
+                (v, view) -> {
+                    if (v.getInventory().getItemInMainHand().getType() != mat) {
+                        m().send(v, "orders.dialog.changed");
+                        return;
+                    }
+                    Integer amount = club.zeroiq.pawsocks.util.Dialogs.intValue(view, "amount");
+                    String price = club.zeroiq.pawsocks.util.Dialogs.textValue(view, "price").replace(',', '.');
+                    create(v, String.valueOf(amount == null ? -1 : amount), price);
+                });
     }
 
     private void create(Player p, String amountArg, String priceArg) {
@@ -137,6 +171,7 @@ public final class OrdersFeature implements CommandExecutor, TabCompleter {
                 Money.tag(m(), "price", price),
                 Placeholder.unparsed("hours", String.valueOf(hours)));
         Fx.sound(p.getLocation(), "minecraft:block.note_block.chime", 0.7f, 1.2f);
+        plugin.achievements().grant(p, "order");
     }
 
     private void deliver(Player p, Orders.Order o) {
@@ -178,6 +213,7 @@ public final class OrdersFeature implements CommandExecutor, TabCompleter {
             back.setAmount(removed - d.delivered());
             for (ItemStack s : splitStacks(back)) Items.give(p, s);
         }
+        plugin.achievements().grant(p, "order");
         m().send(p, "orders.delivered",
                 Placeholder.unparsed("count", String.valueOf(d.delivered())),
                 Placeholder.component("item", Items.name(plain)),
@@ -280,7 +316,11 @@ public final class OrdersFeature implements CommandExecutor, TabCompleter {
                     m().lore("orders.mine-lore", Placeholder.unparsed("count", String.valueOf(orders().byOwner(p.getUniqueId()).size())))),
                     v -> new MineMenu().open(v));
             set(50, Items.icon(Material.WRITABLE_BOOK, m().item("orders.help-name"),
-                    m().lore("orders.help-lore", Placeholder.unparsed("commission", trim(commission())))), null);
+                    m().lore("orders.help-lore", Placeholder.unparsed("commission", trim(commission())))), v -> {
+                v.closeInventory();
+                if (plugin.dialogs().enabled()) createDialog(v);
+                else m().send(v, "orders.usage");
+            });
             if (page < pages - 1) set(53, Items.icon(Material.ARROW, m().item("ah.next.name"), List.of()), v -> {
                 page++;
                 open(v);

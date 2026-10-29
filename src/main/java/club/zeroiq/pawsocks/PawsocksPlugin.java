@@ -4,6 +4,15 @@ import club.zeroiq.pawsocks.astra.AstraEffects;
 import club.zeroiq.pawsocks.astra.AstraFeature;
 import club.zeroiq.pawsocks.astra.AstraItems;
 import club.zeroiq.pawsocks.astra.Astras;
+import club.zeroiq.pawsocks.astra.Lamps;
+import club.zeroiq.pawsocks.astra.StarFeature;
+import club.zeroiq.pawsocks.social.Achievements;
+import club.zeroiq.pawsocks.social.EmoteFeature;
+import club.zeroiq.pawsocks.social.Friends;
+import club.zeroiq.pawsocks.social.FriendsFeature;
+import club.zeroiq.pawsocks.social.MentorFeature;
+import club.zeroiq.pawsocks.util.Dialogs;
+import club.zeroiq.pawsocks.util.Telegram;
 import club.zeroiq.pawsocks.cosmetics.CosmeticsFeature;
 import club.zeroiq.pawsocks.data.Database;
 import club.zeroiq.pawsocks.data.Perks;
@@ -73,6 +82,16 @@ public final class PawsocksPlugin extends JavaPlugin {
     private ShopFeature shop;
     private CosmeticsFeature cosmetics;
 
+    private Telegram telegram;
+    private Dialogs dialogs;
+    private Lamps lamps;
+    private StarFeature stars;
+    private Achievements achievements;
+    private EmoteFeature emotes;
+    private FriendsFeature friendsFeature;
+    private MentorFeature mentors;
+    private Runnable locatorOff;
+
     @Override
     public void onEnable() {
         saveDefaultConfig();
@@ -97,6 +116,9 @@ public final class PawsocksPlugin extends JavaPlugin {
         perks = new Perks(database);
         astras = new Astras(database);
         orders = new Orders(database);
+        telegram = new Telegram(this);
+        dialogs = new Dialogs(this);
+        achievements = new Achievements(this);
         prices = new Prices(this, database, guard);
         prices.load();
         auction = new Auction(database);
@@ -118,17 +140,29 @@ public final class PawsocksPlugin extends JavaPlugin {
         shop.load();
         cosmetics = new CosmeticsFeature(this);
         SmithFeature smith = new SmithFeature(this);
+        lamps = new Lamps(this, database);
+        lamps.load();
+        stars = new StarFeature(this);
+        emotes = new EmoteFeature(this);
+        friendsFeature = new FriendsFeature(this, new Friends(database));
+        mentors = new MentorFeature(this, database);
 
         socks.registerRecipe();
         carrier.registerRecipe();
         for (Listener l : List.of(new MenuListener(this), ecoCommands, socks, cozy, hugs, trails, carrier, sell,
-                auctionFeature, homes, astraEffects, astraFeature, cosmetics)) {
+                auctionFeature, homes, astraEffects, astraFeature, cosmetics, lamps, stars, achievements, emotes,
+                friendsFeature, mentors)) {
             Bukkit.getPluginManager().registerEvents(l, this);
         }
         cozy.start();
         auctionFeature.start();
-        astraEffects.start();
         astraFeature.start();
+        lamps.start();
+        stars.load();
+        achievements.load();
+        achievements.start();
+        friendsFeature.start();
+        mentors.start();
         ordersFeature.start();
         cosmetics.start();
 
@@ -141,6 +175,10 @@ public final class PawsocksPlugin extends JavaPlugin {
         command("order", ordersFeature, ordersFeature);
         command("shop", shop, null);
         command("smith", smith, null);
+        for (String c : List.of("emote", "meow", "purr", "boop", "wave")) command(c, emotes, emotes);
+        command("friend", friendsFeature, friendsFeature);
+        command("couple", friendsFeature, friendsFeature);
+        command("mentor", mentors, null);
 
         // цена при наведении — только если на сервере есть packetevents
         if (Bukkit.getPluginManager().isPluginEnabled("packetevents")) {
@@ -149,6 +187,12 @@ public final class PawsocksPlugin extends JavaPlugin {
                 getLogger().info("цена при наведении включена (packetevents)");
             } catch (Throwable t) {
                 getLogger().warning("не удалось подключиться к packetevents, цены при наведении не будет: " + t);
+            }
+            try {
+                locatorOff = club.zeroiq.pawsocks.social.LocatorFilter.enable(friendsFeature);
+                getLogger().info("полоса локатора: видны только друзья (packetevents)");
+            } catch (Throwable t) {
+                getLogger().warning("не удалось подключить фильтр полосы локатора: " + t);
             }
         } else {
             getLogger().warning("плагин packetevents не найден — цены при наведении на предмет не будет. всё остальное работает");
@@ -161,7 +205,7 @@ public final class PawsocksPlugin extends JavaPlugin {
             p.discoverRecipe(new NamespacedKey(this, "carrier"));
         }
         getLogger().info("pawsocks включён: носки, уют, обнимашки, следы лапок, переноска, экономика, аукцион, дома, "
-                + "астры, магазины, кузнец, заказы, косметика, /paw");
+                + "астры, магазины, кузнец, заказы, косметика, эмоции, друзья и пары, наставники, достижения, /paw");
     }
 
     private void command(String name, CommandExecutor executor, TabCompleter completer) {
@@ -177,17 +221,22 @@ public final class PawsocksPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         if (sell != null) sell.closeAll();
-        if (worthOff != null) {
+        for (Runnable off : new Runnable[]{worthOff, locatorOff}) {
+            if (off == null) continue;
             try {
-                worthOff.run();
+                off.run();
             } catch (Throwable ignored) {
                 // packetevents мог выключиться раньше нас
             }
         }
+        if (telegram != null) telegram.shutdown();
+        if (lamps != null) lamps.stop();
+        if (achievements != null) achievements.stop();
+        if (friendsFeature != null) friendsFeature.stopTask();
+        if (mentors != null) mentors.stop();
         if (auctionFeature != null) auctionFeature.stop();
         if (ordersFeature != null) ordersFeature.stop();
         if (astraFeature != null) astraFeature.stop();
-        if (astraEffects != null) astraEffects.stop();
         if (cosmetics != null) cosmetics.stop();
         if (cozy != null) cozy.stop();
         if (database != null) database.close();
@@ -262,6 +311,46 @@ public final class PawsocksPlugin extends JavaPlugin {
 
     public Orders orders() {
         return orders;
+    }
+
+    public Telegram telegram() {
+        return telegram;
+    }
+
+    public Dialogs dialogs() {
+        return dialogs;
+    }
+
+    public Lamps lamps() {
+        return lamps;
+    }
+
+    public StarFeature stars() {
+        return stars;
+    }
+
+    public Achievements achievements() {
+        return achievements;
+    }
+
+    public FriendsFeature friends() {
+        return friendsFeature;
+    }
+
+    public MentorFeature mentors() {
+        return mentors;
+    }
+
+    public EmoteFeature emotes() {
+        return emotes;
+    }
+
+    public HomesFeature homes() {
+        return homes;
+    }
+
+    public AstraFeature astraFeature() {
+        return astraFeature;
     }
 
     public CosmeticsFeature cosmetics() {

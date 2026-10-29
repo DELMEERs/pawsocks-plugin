@@ -220,6 +220,10 @@ public final class CozyFeature implements Listener {
                 : plugin.messages().raw(cat ? "petting.default-cat" : "petting.default-other");
         plugin.messages().actionBar(player, cat ? "petting.cat" : "petting.other", Placeholder.unparsed("name", name));
         add(player, cfg().getInt("cozy.petting-bonus", 8));
+        plugin.achievements().grant(player, "pet");
+        if (plugin.achievements().count(player, "pets") >= cfg().getInt("achievements.pets", 100)) {
+            plugin.achievements().grant(player, "pet_100");
+        }
     }
 
     private static String petSound(Entity e) {

@@ -3,8 +3,10 @@ package club.zeroiq.pawsocks.astra;
 import club.zeroiq.pawsocks.PawsocksPlugin;
 import club.zeroiq.pawsocks.util.Messages;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -27,13 +29,7 @@ public final class AstraItems {
     public enum Ench {
         DRILL("drill", Material.DIAMOND_PICKAXE, m -> m.name().endsWith("_PICKAXE")),
         TIMBER("timber", Material.DIAMOND_AXE, m -> m.name().endsWith("_AXE")),
-        SMELT("smelt", Material.FURNACE, m -> m.name().endsWith("_PICKAXE")),
-        MAGNET("magnet", Material.LODESTONE, m -> {
-            String n = m.name();
-            return n.endsWith("_PICKAXE") || n.endsWith("_AXE") || n.endsWith("_SHOVEL")
-                    || n.endsWith("_HOE") || n.endsWith("_SWORD") || m == Material.MACE || m == Material.TRIDENT;
-        }),
-        CATSIGHT("catsight", Material.GOLDEN_HELMET, m -> m.name().endsWith("_HELMET"));
+        SPAWNER("spawner", Material.SPAWNER, m -> m.name().endsWith("_PICKAXE"));
 
         public final String id;
         public final Material icon;
@@ -57,12 +53,14 @@ public final class AstraItems {
 
     private final PawsocksPlugin plugin;
     private final NamespacedKey enchKey;
-    private final NamespacedKey talismanKey;
+    private final NamespacedKey lampKey;
+    private final NamespacedKey spawnerKey;
 
     public AstraItems(PawsocksPlugin plugin) {
         this.plugin = plugin;
         this.enchKey = new NamespacedKey(plugin, "astra_ench");
-        this.talismanKey = new NamespacedKey(plugin, "nine_lives");
+        this.lampKey = new NamespacedKey(plugin, "star_lamp");
+        this.spawnerKey = new NamespacedKey(plugin, "spawner_type");
     }
 
     private NamespacedKey astraKey() {
@@ -101,26 +99,51 @@ public final class AstraItems {
         item.setItemMeta(meta);
     }
 
-    // --- талисман «девять жизней» ---
+    // --- звёздный фонарь ---
 
-    public ItemStack talisman() {
+    public ItemStack lamp() {
         Messages m = plugin.messages();
-        ItemStack item = new ItemStack(Material.PAPER);
+        ItemStack item = new ItemStack(Material.PEARLESCENT_FROGLIGHT);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(m.item("astra.talisman.name"));
-        meta.lore(m.lore("astra.talisman.lore"));
-        meta.setItemModel(NamespacedKey.minecraft("heart_of_the_sea"));
+        meta.displayName(m.item("astra.lamp.name"));
+        meta.lore(m.lore("astra.lamp.lore", Placeholder.unparsed("radius", String.valueOf(plugin.lamps().radius()))));
         meta.setEnchantmentGlintOverride(true);
-        meta.setMaxStackSize(1);
-        meta.getPersistentDataContainer().set(talismanKey, PersistentDataType.BYTE, (byte) 1);
+        meta.getPersistentDataContainer().set(lampKey, PersistentDataType.BYTE, (byte) 1);
         meta.getPersistentDataContainer().set(astraKey(), PersistentDataType.BYTE, (byte) 1);
         item.setItemMeta(meta);
         return item;
     }
 
-    public boolean isTalisman(ItemStack item) {
+    public boolean isLamp(ItemStack item) {
         return item != null && item.hasItemMeta()
-                && item.getItemMeta().getPersistentDataContainer().has(talismanKey, PersistentDataType.BYTE);
+                && item.getItemMeta().getPersistentDataContainer().has(lampKey, PersistentDataType.BYTE);
+    }
+
+    // --- спавнер, добытый киркой для спавнеров ---
+
+    /** Спавнер с мобом. Сам он не «астральный»: его можно передать или выставить на аукцион. */
+    public ItemStack spawner(EntityType type) {
+        Messages m = plugin.messages();
+        ItemStack item = new ItemStack(Material.SPAWNER);
+        ItemMeta meta = item.getItemMeta();
+        if (type != null) {
+            meta.displayName(m.item("astra.spawner-item.name", Placeholder.component("mob", Component.translatable(type.translationKey()))));
+            meta.getPersistentDataContainer().set(spawnerKey, PersistentDataType.STRING, type.getKey().toString());
+        } else {
+            meta.displayName(m.item("astra.spawner-item.empty"));
+        }
+        meta.lore(m.lore("astra.spawner-item.lore"));
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    /** Какой моб записан в спавнере (null — пустой или обычный спавнер). */
+    public EntityType spawnerType(ItemStack item) {
+        if (item == null || item.getType() != Material.SPAWNER || !item.hasItemMeta()) return null;
+        String raw = item.getItemMeta().getPersistentDataContainer().get(spawnerKey, PersistentDataType.STRING);
+        if (raw == null) return null;
+        NamespacedKey key = NamespacedKey.fromString(raw);
+        return key == null ? null : org.bukkit.Registry.ENTITY_TYPE.get(key);
     }
 
     /** Значок астр в меню — осколок аметиста с блеском. */

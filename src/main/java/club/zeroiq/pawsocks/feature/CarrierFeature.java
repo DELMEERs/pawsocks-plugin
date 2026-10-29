@@ -154,6 +154,7 @@ public final class CarrierFeature implements Listener {
         Fx.sound(pet.getLocation(), "minecraft:item.bundle.insert", 1f, 1f);
         pet.remove();
         player.getInventory().setItemInMainHand(full(data, name));
+        plugin.achievements().grant(player, "carrier");
         m().actionBar(player, "carrier.caught", Placeholder.component("pet", petName(name)));
     }
 

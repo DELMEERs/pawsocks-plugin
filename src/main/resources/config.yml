@@ -130,7 +130,67 @@ astra:
   shop:
     drill: 40
     timber: 25
-    smelt: 20
-    magnet: 15
-    catsight: 15
-    nine-lives: 30
+    spawner: 60
+    lamp: 35
+    star-nick: 50
+    star-join: 30
+  # звёздный фонарь: в этом радиусе (в блоках) сами по себе не появляются враждебные мобы
+  lamp-radius: 32
+  # звёздный ник ставится через ник flectonepulse. {player} — ник игрока, {nick} — ник с цветом
+  star-nick:
+    command: "nickname other {player} {nick}"
+    clear-command: "nickname other {player} clear"
+    # стили: id → открывающий тег minimessage (названия — в messages.yml, astra.star-nick.style)
+    styles:
+      star: "<gradient:#FFD166:#FF9CC2>"
+      lavender: "<gradient:#B79CFF:#FF9CC2>"
+      sunset: "<gradient:#FF7171:#FFD166>"
+      sea: "<gradient:#7FD8FF:#B79CFF>"
+      mint: "<gradient:#9BE38A:#7FD8FF>"
+      femboy: "<gradient:#FF9CC2:#F4F1FA:#7FB8FF>"
+      rainbow: "<rainbow>"
+
+# телеграм-чат через плагин tgbridge (звёздный вход, новые парочки)
+telegram:
+  enabled: true
+  # имя чата из конфига tgbridge
+  chat: default
+
+# окна с полями ввода вместо длинных команд (заказ, имя у кузнеца, друзья, приветствие)
+dialogs:
+  enabled: true
+
+# приветственное окно для новичков при первом входе
+welcome:
+  enabled: true
+  delay-seconds: 4
+
+emotes:
+  enabled: true
+  cooldown-seconds: 3
+  # кто видит строчку в чате
+  radius: 24
+
+friends:
+  max: 50
+  request-minutes: 5
+  # на полосе локатора видны только друзья и пара (каждый может включить «всех» в /friend)
+  locator-friends-only: true
+
+mentors:
+  enabled: true
+  # выбрать наставника можно, пока наиграно меньше стольких часов
+  choose-max-hours: 3
+  # награда, когда новичок наиграет столько часов
+  reward-hours: 5
+  reward-mentee: 3
+  reward-mentor: 5
+
+achievements:
+  enabled: true
+  sock-colors: 8
+  pets: 100
+  hugs: 25
+  rich-lapki: 1000
+  daily-days: 7
+  veteran-hours: 50

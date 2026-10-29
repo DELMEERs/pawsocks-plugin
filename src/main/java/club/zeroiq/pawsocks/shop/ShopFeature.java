@@ -183,6 +183,7 @@ public final class ShopFeature implements CommandExecutor {
             return;
         }
         Items.give(p, goods);
+        plugin.achievements().grant(p, "shop");
         m().send(p, "shop.bought",
                 Placeholder.component("item", Items.name(goods)),
                 Placeholder.unparsed("count", String.valueOf(amount)),

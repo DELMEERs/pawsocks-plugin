@@ -39,6 +39,13 @@ public final class Money {
         }
     }
 
+    /** Для поля ввода: 123450 → «1234.5», 1200 → «12» (то, что понимает parse). */
+    public static String plain(long cents) {
+        long whole = cents / 100, frac = cents % 100;
+        if (frac == 0) return Long.toString(whole);
+        return whole + "." + (frac < 10 ? "0" : "") + frac;
+    }
+
     /** 123450 → «1 234,50», 1200 → «12». */
     public static String number(long cents) {
         boolean negative = cents < 0;

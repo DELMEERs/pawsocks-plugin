@@ -143,6 +143,43 @@ public final class Database {
                         value INTEGER NOT NULL,
                         PRIMARY KEY (uuid, key)
                     )""");
+
+            // 1.3: звёздные фонари, друзья, парочки, наставники
+            s.execute("""
+                    CREATE TABLE IF NOT EXISTS lamps (
+                        world TEXT NOT NULL,
+                        x INTEGER NOT NULL, y INTEGER NOT NULL, z INTEGER NOT NULL,
+                        owner TEXT NOT NULL,
+                        placed INTEGER NOT NULL,
+                        PRIMARY KEY (world, x, y, z)
+                    )""");
+            s.execute("""
+                    CREATE TABLE IF NOT EXISTS friends (
+                        a     TEXT NOT NULL,
+                        b     TEXT NOT NULL,
+                        since INTEGER NOT NULL,
+                        PRIMARY KEY (a, b)
+                    )""");
+            s.execute("""
+                    CREATE TABLE IF NOT EXISTS couples (
+                        a     TEXT PRIMARY KEY,
+                        b     TEXT NOT NULL,
+                        since INTEGER NOT NULL
+                    )""");
+            s.execute("""
+                    CREATE TABLE IF NOT EXISTS couple_homes (
+                        pair  TEXT PRIMARY KEY,
+                        world TEXT NOT NULL,
+                        x REAL NOT NULL, y REAL NOT NULL, z REAL NOT NULL,
+                        yaw REAL NOT NULL, pitch REAL NOT NULL
+                    )""");
+            s.execute("""
+                    CREATE TABLE IF NOT EXISTS mentors (
+                        mentee   TEXT PRIMARY KEY,
+                        mentor   TEXT NOT NULL,
+                        at       INTEGER NOT NULL,
+                        rewarded INTEGER NOT NULL DEFAULT 0
+                    )""");
         }
     }
 

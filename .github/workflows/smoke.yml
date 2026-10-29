@@ -60,6 +60,8 @@ jobs:
             echo "astra give nobody 1"; sleep 1
             echo "shop"; sleep 1
             echo "order"; sleep 1
+            echo "emote"; sleep 1
+            echo "friend"; sleep 1
             echo "plugins"; sleep 2
             echo "stop"
           ) > console &
@@ -70,7 +72,7 @@ jobs:
         run: |
           set -e
           # строки про плагин — в аннотации запуска, чтобы их было видно без скачивания лога
-          grep -iE '\[pawsocks\]|exception|лапок|цены|shop.yml' run.log | grep -v 'Loading server plugin' | sed 's/\x1b\[[0-9;]*m//g' | head -25 | while IFS= read -r line; do
+          grep -iE '\[pawsocks\]|exception|лапок|цены|shop.yml|достижен|локатор' run.log | grep -v 'Loading server plugin' | sed 's/\x1b\[[0-9;]*m//g' | head -25 | while IFS= read -r line; do
             echo "::notice title=лог сервера::${line}"
           done
           grep -q 'pawsocks включён' run.log || { echo "::error::плагин не включился"; exit 1; }
@@ -78,6 +80,8 @@ jobs:
           grep -q 'цена при наведении включена' run.log || { echo "::error::не подключился к packetevents"; exit 1; }
           grep -q 'всего лапок у игроков' run.log || { echo "::error::/eco info не ответил"; exit 1; }
           grep -q 'цены:' run.log || { echo "::error::цены не посчитались"; exit 1; }
+          grep -q 'достижения: 29 (новых 29)' run.log || { echo "::error::достижения не загрузились"; exit 1; }
+          if grep -n 'достижение .* не загрузилось' run.log; then echo "::error::ошибка в достижениях"; exit 1; fi
           if grep -n 'prices.yml:' run.log; then echo "::error::ошибки в prices.yml"; exit 1; fi
           if grep -nE 'Error occurred while enabling pawsocks|\[pawsocks\].*(Exception|ERROR)|club\.zeroiq\.pawsocks.*Exception|Exception.*club\.zeroiq\.pawsocks|at club\.zeroiq\.pawsocks' run.log; then
             echo "::error::в логе ошибки плагина"; exit 1
@@ -86,7 +90,7 @@ jobs:
           test -f plugins/pawsocks/messages.yml
           test -f plugins/pawsocks/shop.yml
           sqlite3 plugins/pawsocks/data.db '.tables' | tee tables.txt
-          for t in daily orders owned counters; do grep -qw "$t" tables.txt || { echo "::error::нет таблицы $t"; exit 1; }; done
+          for t in daily orders owned counters lamps friends couples couple_homes mentors; do grep -qw "$t" tables.txt || { echo "::error::нет таблицы $t"; exit 1; }; done
           echo "плагин загрузился без ошибок"
 
       - uses: actions/upload-artifact@v4

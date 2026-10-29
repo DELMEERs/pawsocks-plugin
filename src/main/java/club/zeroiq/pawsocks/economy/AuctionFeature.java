@@ -142,6 +142,7 @@ public final class AuctionFeature implements CommandExecutor, TabCompleter, List
             return;
         }
         long payout = price - Money.percent(price, tax());
+        plugin.achievements().grant(player, "ah_sell");
         m().send(player, "ah.listed",
                 Placeholder.component("item", Items.name(item)),
                 Placeholder.unparsed("count", String.valueOf(item.getAmount())),
@@ -170,6 +171,7 @@ public final class AuctionFeature implements CommandExecutor, TabCompleter, List
                     Money.tag(m(), "balance", plugin.economy().balance(player.getUniqueId())));
             case OK -> {
                 give(player, l.item());
+                plugin.achievements().grant(player, "ah_buy");
                 m().send(player, "ah.bought",
                         Placeholder.component("item", Items.name(l.item())),
                         Placeholder.unparsed("count", String.valueOf(l.item().getAmount())),

@@ -59,6 +59,77 @@ public final class Perks {
         });
     }
 
+    /** Купить навсегда за астры. */
+    public BuyResult buyAstra(UUID uuid, String item, int price, String note) {
+        return db.tx(c -> {
+            if (owns(c, uuid, item)) return BuyResult.ALREADY;
+            if (price > 0 && !club.zeroiq.pawsocks.astra.Astras.spend(c, uuid, price, note)) return BuyResult.NO_MONEY;
+            try (PreparedStatement ps = Database.prepare(c,
+                    "INSERT INTO owned (uuid, item, at) VALUES (?, ?, ?)", uuid.toString(), item, System.currentTimeMillis())) {
+                ps.executeUpdate();
+            }
+            return BuyResult.OK;
+        });
+    }
+
+    /** Все владельцы вещи (для кэшей при запуске). */
+    public Set<UUID> owners(String item) {
+        return db.read(c -> {
+            Set<UUID> out = new HashSet<>();
+            try (PreparedStatement ps = Database.prepare(c, "SELECT uuid FROM owned WHERE item = ?", item);
+                 ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) out.add(UUID.fromString(rs.getString(1)));
+            }
+            return out;
+        });
+    }
+
+    // --- счётчики и отметки (статистика для достижений, настройки) ---
+
+    /** Прибавить к счётчику, вернуть новое значение. */
+    public int add(UUID uuid, String key, int n) {
+        return db.tx(c -> {
+            try (PreparedStatement ps = Database.prepare(c,
+                    "INSERT INTO counters (uuid, key, value) VALUES (?, ?, ?) " +
+                            "ON CONFLICT(uuid, key) DO UPDATE SET value = value + excluded.value", uuid.toString(), key, n)) {
+                ps.executeUpdate();
+            }
+            return counter(c, uuid, key);
+        });
+    }
+
+    public void set(UUID uuid, String key, int value) {
+        db.read(c -> {
+            try (PreparedStatement ps = Database.prepare(c,
+                    "INSERT INTO counters (uuid, key, value) VALUES (?, ?, ?) " +
+                            "ON CONFLICT(uuid, key) DO UPDATE SET value = excluded.value", uuid.toString(), key, value)) {
+                ps.executeUpdate();
+            }
+            return null;
+        });
+    }
+
+    /** Поставить отметку. true — если её раньше не было. */
+    public boolean mark(UUID uuid, String key) {
+        return db.read(c -> {
+            try (PreparedStatement ps = Database.prepare(c,
+                    "INSERT OR IGNORE INTO counters (uuid, key, value) VALUES (?, ?, 1)", uuid.toString(), key)) {
+                return ps.executeUpdate() > 0;
+            }
+        });
+    }
+
+    /** Сколько разных отметок с таким началом ключа (например, цвета носков). */
+    public int countPrefix(UUID uuid, String prefix) {
+        return db.read(c -> {
+            try (PreparedStatement ps = Database.prepare(c,
+                    "SELECT COUNT(*) FROM counters WHERE uuid = ? AND substr(key, 1, ?) = ?", uuid.toString(), prefix.length(), prefix);
+                 ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        });
+    }
+
     public int counter(UUID uuid, String key) {
         return db.read(c -> counter(c, uuid, key));
     }

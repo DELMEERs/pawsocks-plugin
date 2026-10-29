@@ -32,6 +32,16 @@ class MoneyTest {
     }
 
     @Test
+    void plainRoundTrip() {
+        assertEquals("12", Money.plain(1200));
+        assertEquals("1234.50", Money.plain(123450));
+        assertEquals("0.05", Money.plain(5));
+        for (long c : new long[]{1, 5, 99, 100, 1050, 123456}) {
+            assertEquals(c, Money.parse(Money.plain(c)));
+        }
+    }
+
+    @Test
     void words() {
         String[] w = {"лапка", "лапки", "лапок"};
         assertEquals("лапка", Money.word(100, w[0], w[1], w[2]));

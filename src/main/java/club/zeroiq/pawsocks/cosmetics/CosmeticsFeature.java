@@ -184,6 +184,7 @@ public final class CosmeticsFeature implements Listener {
             case OK -> {
                 owned.remove(p.getUniqueId());
                 m().send(p, "cosmetics.bought", Money.tag(m(), "price", price));
+                plugin.achievements().grant(p, "cosmetic");
                 Fx.sound(p.getLocation(), "minecraft:entity.player.levelup", 0.6f, 1.5f);
                 then.run();
             }

@@ -111,6 +111,7 @@ public final class SellFeature implements CommandExecutor, TabCompleter, Listene
             m().send(player, "sell.nothing");
             return;
         }
+        plugin.achievements().grant(player, "sell");
         m().send(player, "sell.done",
                 Placeholder.unparsed("count", String.valueOf(r.sold())),
                 Money.tag(m(), "money", r.total()),
