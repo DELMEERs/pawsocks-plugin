@@ -286,6 +286,47 @@ public final class HomesFeature implements CommandExecutor, TabCompleter, Listen
         });
     }
 
+    public void teleport(Player player, Player target) {
+        long now = System.currentTimeMillis();
+        long cooldown = plugin.getConfig().getLong("homes.cooldown-seconds", 5) * 1000L;
+        Long last = lastTeleport.get(player.getUniqueId());
+        if (last != null && now - last < cooldown) {
+            m().send(player, "homes.cooldown", Placeholder.unparsed("seconds", String.valueOf((cooldown - (now - last) + 999) / 1000)));
+            return;
+        }
+        cancel(player, false);
+        int delay = plugin.getConfig().getInt("homes.warmup-seconds", 3);
+        if (delay <= 0 || player.hasPermission("pawsocks.homes.instant")) {
+            goToPlayer(player, target);
+            return;
+        }
+        m().send(player, "friends.tp-warmup", Placeholder.unparsed("name", target.getName()), Placeholder.unparsed("seconds", String.valueOf(delay)));
+        UUID targetId = target.getUniqueId();
+        BukkitTask task = Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            pending.remove(player.getUniqueId());
+            if (!player.isOnline()) return;
+            Player currentTarget = Bukkit.getPlayer(targetId);
+            if (currentTarget == null || !player.canSee(currentTarget)) {
+                m().send(player, "friends.not-found");
+                return;
+            }
+            goToPlayer(player, currentTarget);
+        }, delay * 20L);
+        pending.put(player.getUniqueId(), new Pending(task, player.getLocation().clone()));
+    }
+
+    private void goToPlayer(Player player, Player target) {
+        Location to = target.getLocation();
+        Location from = player.getLocation();
+        from.getWorld().spawnParticle(Particle.PORTAL, from.add(0, 1, 0), 30, 0.4, 0.8, 0.4, 0.2);
+        player.teleportAsync(to, PlayerTeleportEvent.TeleportCause.PLUGIN).thenAccept(ok -> {
+            if (!ok) return;
+            lastTeleport.put(player.getUniqueId(), System.currentTimeMillis());
+            Fx.sound(to, "minecraft:entity.enderman.teleport", 0.6f, 1.2f);
+            m().actionBar(player, "friends.tp-arrived", Placeholder.unparsed("name", target.getName()));
+        });
+    }
+
     private void cancel(Player player, boolean notify) {
         Pending p = pending.remove(player.getUniqueId());
         if (p == null) return;

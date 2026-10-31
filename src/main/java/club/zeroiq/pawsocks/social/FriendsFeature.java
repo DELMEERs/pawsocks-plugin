@@ -253,6 +253,23 @@ public final class FriendsFeature implements CommandExecutor, TabCompleter, List
         m().send(p, "friends.removed", Placeholder.unparsed("name", name));
     }
 
+    private void teleportTo(Player from, UUID targetUuid) {
+        if (!friends.areFriends(from.getUniqueId(), targetUuid) && !targetUuid.equals(friends.partner(from.getUniqueId()))) {
+            m().send(from, "friends.not-friend", Placeholder.unparsed("name", eco().name(targetUuid)));
+            return;
+        }
+        Player to = Bukkit.getPlayer(targetUuid);
+        if (to == null || !from.canSee(to)) {
+            m().send(from, "friends.not-found");
+            return;
+        }
+        if (to.equals(from)) {
+            m().send(from, "friends.self");
+            return;
+        }
+        plugin.homes().teleport(from, to);
+    }
+
     // --- парочки ---
 
     private void couple(Player p, String[] args) {
@@ -413,7 +430,8 @@ public final class FriendsFeature implements CommandExecutor, TabCompleter, List
             for (int i = 45; i < 54; i++) set(i, pane, null);
             UUID me = p.getUniqueId();
             UUID partner = friends.partner(me);
-            List<UUID> list = friends.list(me);
+            List<UUID> list = new ArrayList<>(friends.list(me));
+            if (partner != null && !list.contains(partner)) list.add(0, partner);
             for (int i = 0; i < list.size() && i < 45; i++) {
                 UUID f = list.get(i);
                 String name = eco().name(f);
@@ -426,7 +444,10 @@ public final class FriendsFeature implements CommandExecutor, TabCompleter, List
                     if (click == ClickType.SHIFT_RIGHT) {
                         removeFriend(v, f, name);
                         open(v);
-                    } else if (click == ClickType.LEFT && partner == null && Bukkit.getPlayer(f) != null) {
+                    } else if (click == ClickType.LEFT) {
+                        v.closeInventory();
+                        teleportTo(v, f);
+                    } else if (click == ClickType.RIGHT && partner == null && Bukkit.getPlayer(f) != null) {
                         v.closeInventory();
                         propose(v, name);
                     }
