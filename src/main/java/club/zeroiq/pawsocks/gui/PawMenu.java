@@ -116,16 +116,6 @@ public final class PawMenu extends Menu {
         set(32, Items.icon(Material.ANVIL, m.item("menu.smith.name"), m.lore("menu.smith.lore")), command("smith"));
         set(34, plugin.astraItems().astraIcon(m.item("menu.astra.name"), m.lore("menu.astra.lore",
                 club.zeroiq.pawsocks.astra.AstraFeature.tag(m, "astra", plugin.astras().balance(p.getUniqueId())))), command("astra"));
-
-        // админ-панель — видна только Создателю и Модераторам
-        if (plugin.staff() != null && plugin.staff().isStaff(p)) {
-            set(40, Items.glow(Items.icon(Material.NETHER_STAR, m.item("menu.staff.name"),
-                    m.lore("menu.staff.lore", Placeholder.parsed("role", plugin.staff().roleBadge(p))))),
-                    viewer -> {
-                        click(viewer);
-                        plugin.staff().openMain(viewer);
-                    });
-        }
     }
 
     /** Кнопка, которая закрывает меню и выполняет команду от игрока. */

@@ -195,7 +195,7 @@ achievements:
   daily-days: 7
   veteran-hours: 50
 
-# админ-панель (/staff и кнопка в /paw) для Создателя (pawsocks.owner) и Модератора (pawsocks.mod)
+# админ-панель (/staff, /mod, /admin, /panel) для Создателя (pawsocks.owner) и Модератора (pawsocks.mod)
 staff:
   # отправлять ли уведомления о наказаниях в телеграм-чат сообщества
   telegram-log: true

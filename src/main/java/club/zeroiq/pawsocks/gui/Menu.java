@@ -24,12 +24,12 @@ public abstract class Menu implements InventoryHolder {
         this.inventory = Bukkit.createInventory(this, rows * 9, title);
     }
 
-    protected void set(int slot, ItemStack item, Consumer<Player> onClick) {
+    public void set(int slot, ItemStack item, Consumer<Player> onClick) {
         setClick(slot, item, onClick == null ? null : (p, c) -> onClick.accept(p));
     }
 
     /** То же, но действие знает, каким кликом нажали (левый, правый, с шифтом). */
-    protected void setClick(int slot, ItemStack item, BiConsumer<Player, ClickType> onClick) {
+    public void setClick(int slot, ItemStack item, BiConsumer<Player, ClickType> onClick) {
         inventory.setItem(slot, item);
         if (onClick != null) {
             actions.put(slot, onClick);

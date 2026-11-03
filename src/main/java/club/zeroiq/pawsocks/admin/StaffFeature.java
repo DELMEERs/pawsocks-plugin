@@ -10,7 +10,6 @@ import club.zeroiq.pawsocks.economy.Economy;
 import club.zeroiq.pawsocks.economy.Money;
 import club.zeroiq.pawsocks.feature.Trail;
 import club.zeroiq.pawsocks.gui.Menu;
-import club.zeroiq.pawsocks.gui.PawMenu;
 import club.zeroiq.pawsocks.homes.HomesFeature;
 import club.zeroiq.pawsocks.util.Dialogs;
 import club.zeroiq.pawsocks.util.Fx;
@@ -84,7 +83,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Админ-панель и система модерации для ролей Создатель и Модератор (/staff, а также кнопка в /paw).
+ * Админ-панель и система модерации для ролей Создатель и Модератор (/staff, /mod, /admin, /panel).
  * Включает:
  * - 3 ступени наказаний (1: предупреждение, 2: мут или временный бан, 3: перманентный бан) + бан за серьёзные нарушения;
  * - разумные ограничения для модераторов (запрет пермабана/пермамута, потолок сроков, кулдаун кика, защита от спама);
@@ -1218,10 +1217,9 @@ public final class StaffFeature implements CommandExecutor, TabCompleter, Listen
                 });
             }
 
-            // нижняя панель: назад в /paw, пагинация, личные переключатели, порядок на сервере, журнал
-            set(45, Items.icon(Material.ARROW, m().item("menu.back"), List.of()), v -> new PawMenu(plugin).open(v));
+            // нижняя панель: пагинация, личные переключатели, порядок на сервере, журнал
             if (page > 0) {
-                set(46, Items.icon(Material.SPECTRAL_ARROW, m().item("ah.prev.name"), List.of()), v -> new StaffMainMenu(page - 1).open(v));
+                set(45, Items.icon(Material.SPECTRAL_ARROW, m().item("ah.prev.name"), List.of()), v -> new StaffMainMenu(page - 1).open(v));
             }
 
             boolean isVanish = vanished.contains(viewer.getUniqueId());
