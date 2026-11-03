@@ -62,6 +62,7 @@ jobs:
             echo "order"; sleep 1
             echo "emote"; sleep 1
             echo "friend"; sleep 1
+            echo "staff"; sleep 1
             echo "plugins"; sleep 2
             echo "stop"
           ) > console &
@@ -90,7 +91,7 @@ jobs:
           test -f plugins/pawsocks/messages.yml
           test -f plugins/pawsocks/shop.yml
           sqlite3 plugins/pawsocks/data.db '.tables' | tee tables.txt
-          for t in daily orders owned counters lamps friends couples couple_homes mentors; do grep -qw "$t" tables.txt || { echo "::error::нет таблицы $t"; exit 1; }; done
+          for t in daily orders owned counters lamps friends couples couple_homes mentors punishments; do grep -qw "$t" tables.txt || { echo "::error::нет таблицы $t"; exit 1; }; done
           echo "плагин загрузился без ошибок"
 
       - uses: actions/upload-artifact@v4

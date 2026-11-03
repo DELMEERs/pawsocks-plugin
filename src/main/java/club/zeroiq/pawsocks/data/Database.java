@@ -180,6 +180,25 @@ public final class Database {
                         at       INTEGER NOT NULL,
                         rewarded INTEGER NOT NULL DEFAULT 0
                     )""");
+
+            // 1.4: модерация, ступени наказаний и журнал действий администрации
+            s.execute("""
+                    CREATE TABLE IF NOT EXISTS punishments (
+                        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                        target      TEXT NOT NULL,
+                        target_name TEXT NOT NULL,
+                        staff       TEXT NOT NULL,
+                        staff_name  TEXT NOT NULL,
+                        type        TEXT NOT NULL,
+                        stage       INTEGER NOT NULL DEFAULT 0,
+                        reason      TEXT NOT NULL,
+                        created     INTEGER NOT NULL,
+                        expires     INTEGER NOT NULL DEFAULT 0,
+                        active      INTEGER NOT NULL DEFAULT 1,
+                        revoked_by  TEXT
+                    )""");
+            s.execute("CREATE INDEX IF NOT EXISTS punishments_target ON punishments (target, active)");
+            s.execute("CREATE INDEX IF NOT EXISTS punishments_staff ON punishments (staff, created)");
         }
     }
 

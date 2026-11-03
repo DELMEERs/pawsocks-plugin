@@ -306,4 +306,9 @@ public final class CosmeticsFeature implements Listener {
     public List<String> ownedList(Player p) {
         return new ArrayList<>(perks().owned(p.getUniqueId()));
     }
+
+    /** Сбросить кэш покупок игрока (когда Создатель выдал косметику через админ-панель). */
+    public void invalidateCache(UUID uuid) {
+        owned.remove(uuid);
+    }
 }

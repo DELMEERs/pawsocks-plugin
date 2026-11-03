@@ -163,6 +163,10 @@ public final class StarFeature implements Listener {
         joinOn.add(uuid);
     }
 
+    public void revokeJoin(UUID uuid) {
+        joinOn.remove(uuid);
+    }
+
     public boolean toggleJoin(Player p) {
         UUID u = p.getUniqueId();
         boolean on = !joinOn.contains(u);

@@ -34,7 +34,8 @@
 | **окна** | диалоги 1.21.6+: заказ на доске, имя у кузнеца, добавить друга, приветствие новичка — поля ввода вместо команд |
 | **наставники** | новичок в приветственном окне (или `/mentor ник`) указывает, кто его позвал. через 5 ч игры новичку 3 астры, наставнику 5 |
 | **достижения** | вкладка «pawsocks» в меню достижений (L): 29 штук — носки, уют, питомцы, обнимашки, эмоции, друзья, экономика, астры. объявляются в чате и телеграме |
-| **меню `/paw`** | профиль (уют, обнимашки, время, лапки, астры), обнимашки, эмоции, друзья, косметика, дома, следы, экономика, магазин астр |
+| **админ-панель** | `/staff` (`/mod`, `/admin`, `/panel`) и кнопка в `/paw`: доступна только ролям **Создатель** (`pawsocks.owner`) и **Модератор** (`pawsocks.mod`). система наказаний в 3 ступени (1 — предупреждение, 2 — мут или временный бан, 3 — перманентный бан + мгновенный бан за читы/гриферство/травлю), ограничения для модераторов, невидимка (vanish + тихие сундуки), заморозка на проверку (freeze), осмотр инвентаря/эндер-сундука/домов, медленный чат, уборка мусора и выдача особых привилегий (для Создателя) |
+| **меню `/paw`** | профиль (уют, обнимашки, время, лапки, астры), обнимашки, эмоции, друзья, косметика, дома, следы, экономика, магазин астр (+ админ-панель для стаффа) |
 
 ## команды и права
 
@@ -63,6 +64,7 @@
 | `/emote`, `/meow`, `/purr`, `/boop`, `/wave` | `pawsocks.emotes` | все |
 | `/friend`, `/couple` | `pawsocks.friends` | все |
 | `/mentor [ник]` | `pawsocks.mentor` | все |
+| `/staff` (`/mod`, `/admin`, `/panel`) | `pawsocks.mod` / `pawsocks.owner` | модератор / создатель |
 
 на сервере pawsocks выдано:
 
@@ -71,7 +73,9 @@ lp group active permission set pawsocks.homes.2 true
 lp group supporter permission set pawsocks.homes.3 true
 lp group supporter permission set pawsocks.trails.premium true
 lp group moderator permission set pawsocks.homes.4 true
+lp group moderator permission set pawsocks.mod true
 lp group owner permission set pawsocks.homes.unlimited true
+lp group owner permission set pawsocks.owner true
 ```
 
 ## настройка

@@ -48,7 +48,7 @@ import java.util.UUID;
 public final class HomesFeature implements CommandExecutor, TabCompleter, Listener {
 
     public record Home(String name, String world, double x, double y, double z, float yaw, float pitch) {
-        Location location() {
+        public Location location() {
             World w = Bukkit.getWorld(world);
             return w == null ? null : new Location(w, x, y, z, yaw, pitch);
         }

@@ -1,5 +1,7 @@
 package club.zeroiq.pawsocks;
 
+import club.zeroiq.pawsocks.admin.Moderation;
+import club.zeroiq.pawsocks.admin.StaffFeature;
 import club.zeroiq.pawsocks.astra.AstraEffects;
 import club.zeroiq.pawsocks.astra.AstraFeature;
 import club.zeroiq.pawsocks.astra.AstraItems;
@@ -90,6 +92,7 @@ public final class PawsocksPlugin extends JavaPlugin {
     private EmoteFeature emotes;
     private FriendsFeature friendsFeature;
     private MentorFeature mentors;
+    private StaffFeature staff;
     private Runnable locatorOff;
 
     @Override
@@ -146,12 +149,13 @@ public final class PawsocksPlugin extends JavaPlugin {
         emotes = new EmoteFeature(this);
         friendsFeature = new FriendsFeature(this, new Friends(database));
         mentors = new MentorFeature(this, database);
+        staff = new StaffFeature(this, new Moderation(database));
 
         socks.registerRecipe();
         carrier.registerRecipe();
         for (Listener l : List.of(new MenuListener(this), ecoCommands, socks, cozy, hugs, trails, carrier, sell,
                 auctionFeature, homes, astraEffects, astraFeature, cosmetics, lamps, stars, achievements, emotes,
-                friendsFeature, mentors)) {
+                friendsFeature, mentors, staff)) {
             Bukkit.getPluginManager().registerEvents(l, this);
         }
         cozy.start();
@@ -165,6 +169,7 @@ public final class PawsocksPlugin extends JavaPlugin {
         mentors.start();
         ordersFeature.start();
         cosmetics.start();
+        staff.start();
 
         command("hug", hugs, hugs);
         command("sell", sell, sell);
@@ -179,6 +184,7 @@ public final class PawsocksPlugin extends JavaPlugin {
         command("friend", friendsFeature, friendsFeature);
         command("couple", friendsFeature, friendsFeature);
         command("mentor", mentors, null);
+        command("staff", staff, staff);
 
         // цена при наведении — только если на сервере есть packetevents
         if (Bukkit.getPluginManager().isPluginEnabled("packetevents")) {
@@ -230,6 +236,7 @@ public final class PawsocksPlugin extends JavaPlugin {
             }
         }
         if (telegram != null) telegram.shutdown();
+        if (staff != null) staff.stop();
         if (lamps != null) lamps.stop();
         if (achievements != null) achievements.stop();
         if (friendsFeature != null) friendsFeature.stopTask();
@@ -375,5 +382,9 @@ public final class PawsocksPlugin extends JavaPlugin {
 
     public CarrierFeature carrier() {
         return carrier;
+    }
+
+    public StaffFeature staff() {
+        return staff;
     }
 }

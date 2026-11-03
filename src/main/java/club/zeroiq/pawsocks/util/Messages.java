@@ -46,6 +46,10 @@ public final class Messages {
         return config.getString(key, key);
     }
 
+    public List<String> rawList(String key) {
+        return config.getStringList(key);
+    }
+
     public Component get(String key, TagResolver... resolvers) {
         return MM.deserialize(raw(key), resolvers);
     }

@@ -116,6 +116,7 @@ public final class FriendsFeature implements CommandExecutor, TabCompleter, List
 
     /** Показывать ли target на полосе локатора у receiver. Вызывается из сетевого потока. */
     public boolean visibleOnLocator(UUID receiver, UUID target) {
+        if (plugin.staff() != null && plugin.staff().isVanished(target)) return false;
         if (!plugin.getConfig().getBoolean("friends.locator-friends-only", true)) return true;
         if (receiver.equals(target) || !online.contains(target)) return true; // не игрок — не наше дело
         if (seeAll.contains(receiver)) return true;

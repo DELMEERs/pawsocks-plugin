@@ -119,8 +119,25 @@ commands:
     description: кто позвал тебя на сервер
     usage: /mentor [ник]
     permission: pawsocks.mentor
+  staff:
+    description: админ-панель для Создателя и Модераторов
+    usage: /staff [ник|vanish|spy|nv|warn|mute|tempban|ban|kick|freeze|invsee|ec|log|order]
+    aliases: [mod, admin, panel]
 
 permissions:
+  pawsocks.owner:
+    description: роль Создателя — полный доступ к админ-панели без ограничений
+    default: op
+    children:
+      pawsocks.mod: true
+      pawsocks.admin: true
+      pawsocks.eco.admin: true
+      pawsocks.astra.admin: true
+      pawsocks.homes.unlimited: true
+      pawsocks.trails.premium: true
+  pawsocks.mod:
+    description: роль Модератора — доступ к админ-панели с ограничениями модератора
+    default: op
   pawsocks.menu:
     description: открывать меню /paw
     default: true

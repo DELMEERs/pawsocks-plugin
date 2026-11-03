@@ -84,6 +84,30 @@ public final class Perks {
         });
     }
 
+    /** Бесплатно выдать особую привилегию (из админ-панели Создателя). */
+    public void grant(UUID uuid, String item) {
+        db.read(c -> {
+            try (PreparedStatement ps = Database.prepare(c,
+                    "INSERT OR IGNORE INTO owned (uuid, item, at) VALUES (?, ?, ?)",
+                    uuid.toString(), item, System.currentTimeMillis())) {
+                ps.executeUpdate();
+            }
+            return null;
+        });
+    }
+
+    /** Забрать выданную привилегию. */
+    public void revoke(UUID uuid, String item) {
+        db.read(c -> {
+            try (PreparedStatement ps = Database.prepare(c,
+                    "DELETE FROM owned WHERE uuid = ? AND item = ?",
+                    uuid.toString(), item)) {
+                ps.executeUpdate();
+            }
+            return null;
+        });
+    }
+
     // --- счётчики и отметки (статистика для достижений, настройки) ---
 
     /** Прибавить к счётчику, вернуть новое значение. */
